@@ -112,12 +112,91 @@ export interface EntryBanner {
   };
 }
 
-export interface TrendingSection {
-  trending_1: {
-    trending_items: Array<{
+export interface TrendingProduct {
+  _content_type_uid: string;
+  uid: string;
+  _version: number;
+  locale: string;
+  ACL: Record<string, any>;
+  _in_progress: boolean;
+  category: Array<{
+    uid: string;
+    _content_type_uid: string;
+  }>;
+  class: Array<{
+    uid: string;
+    _content_type_uid: string;
+  }>;
+  created_at: string;
+  created_by: string;
+  description: {
+    details: string;
+    material_and_care: string;
+  };
+  gender: Array<{
+    uid: string;
+    _content_type_uid: string;
+  }>;
+  images: Array<{
+    uid: string;
+    _version: number;
+    parent_uid: string | null;
+    title: string;
+    created_by: string;
+    updated_by: string;
+    created_at: string;
+    updated_at: string;
+    content_type: string;
+    file_size: string;
+    filename: string;
+    ACL: Record<string, any>;
+    is_dir: boolean;
+    tags: string[];
+    publish_details: {
+      time: string;
+      user: string;
+      environment: string;
+      locale: string;
+    };
+    url: string;
+    permanent_url: string;
+  }>;
+  sku: Array<{
+    sku_code: string;
+    color: Array<{
       uid: string;
       _content_type_uid: string;
     }>;
+    size: Array<{
+      uid: string;
+      _content_type_uid: string;
+    }>;
+    inventory: number | null;
+    price: number;
+    discount: number;
+    _metadata: {
+      uid: string;
+    };
+  }>;
+  sub_category: Array<{
+    uid: string;
+    _content_type_uid: string;
+  }>;
+  tags: string[];
+  title: string;
+  updated_at: string;
+  updated_by: string;
+  publish_details: {
+    time: string;
+    user: string;
+    environment: string;
+    locale: string;
+  };
+}
+
+export interface TrendingSection {
+  trending_1: {
+    trending_items: TrendingProduct[];
     _metadata: {
       uid: string;
     };
@@ -166,3 +245,29 @@ export interface SearchParams {
   page?: number;
   limit?: number;
 }
+
+// Utility function to transform TrendingProduct to Product
+export const transformTrendingProductToProduct = (trendingProduct: TrendingProduct): Product => {
+  const firstSku = trendingProduct.sku[0];
+  const originalPrice = firstSku.price;
+  const discountedPrice = firstSku.price * (1 - firstSku.discount / 100);
+  
+  return {
+    id: trendingProduct.uid,
+    title: trendingProduct.title,
+    description: trendingProduct.description.details || trendingProduct.description.material_and_care,
+    price: Math.round(discountedPrice),
+    originalPrice: firstSku.discount > 0 ? originalPrice : undefined,
+    images: trendingProduct.images.map(img => img.url),
+    category: trendingProduct.category[0]?.uid || 'unknown',
+    gender: trendingProduct.gender[0]?.uid === 'blt8fe78d2d00310008' ? 'men' : 
+            trendingProduct.gender[0]?.uid === 'blt947a3e4c7341f648' ? 'women' : 'unisex',
+    class: trendingProduct.class[0]?.uid || 'unknown',
+    tags: trendingProduct.tags,
+    inStock: firstSku.inventory !== null && firstSku.inventory > 0,
+    rating: 4.5, // Default rating since it's not in the trending data
+    reviewCount: Math.floor(Math.random() * 100) + 10, // Mock review count
+    createdAt: trendingProduct.created_at,
+    updatedAt: trendingProduct.updated_at,
+  };
+};

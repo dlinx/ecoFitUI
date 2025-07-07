@@ -2,19 +2,22 @@ import React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Box } from '@mui/material';
 import HeroBanner from '@components/home/HeroBanner';
-import FeaturedProducts from '@components/home/FeaturedProducts';
-import TrendingProducts from '@components/home/TrendingProducts';
-import { useHomePage, useProducts } from '@hooks/useContentstack';
+import ProductSlider from '@components/product/ProductSlider';
+import { useHomePage } from '@hooks/useContentstack';
+import { useFavorites } from '@hooks/useFavorites';
+import { transformTrendingProductToProduct } from '../types';
 
 const HomePage: React.FC = () => {
   const { data: homePage, isLoading: homePageLoading, error: homePageError } = useHomePage();
-  console.log('homePage', homePage);
-  const { data: products = [], isLoading: productsLoading, error: productsError } = useProducts({ 
-    limit: 8 
-  });
+  const { favorites } = useFavorites();
 
   // Get the first banner from entry_banner array
   const heroBanner = homePage?.entry_banner?.[0] || null;
+
+  // Transform trending products to Product format
+  const products = homePage?.trending?.flatMap(section => 
+    section.trending_1.trending_items.map(transformTrendingProductToProduct)
+  ) || [];
 
   return (
     <>
@@ -35,19 +38,31 @@ const HomePage: React.FC = () => {
           <HeroBanner banner={heroBanner} />
         )}
         
-        <FeaturedProducts
+        <ProductSlider
           products={products}
-          isLoading={productsLoading || homePageLoading}
-          error={productsError || homePageError}
-          title="Featured Products"
-          subtitle="Discover our handpicked eco-friendly fitness essentials"
+          isLoading={homePageLoading}
+          error={homePageError}
+          title="Trending Products"
+          subtitle="Discover our most popular and trending eco-friendly fitness products"
+          maxItems={8}
+          showRating={true}
+          showCategory={true}
+          backgroundColor="grey.50"
+          showNavigation={true}
         />
         
-        {homePage?.trending && (
-          <TrendingProducts
-            trending={homePage.trending}
-            isLoading={homePageLoading}
-            error={homePageError}
+        {favorites.length > 0 && (
+          <ProductSlider
+            products={favorites}
+            isLoading={false}
+            error={null}
+            title="Your Wishlist"
+            subtitle="Products you've added to your favorites"
+            maxItems={4}
+            showRating={true}
+            showCategory={true}
+            backgroundColor="transparent"
+            showNavigation={favorites.length > 4}
           />
         )}
       </Box>

@@ -12,22 +12,27 @@ import {
   IconButton,
 } from '@mui/material';
 import { ShoppingCart as ShoppingCartIcon, Favorite, FavoriteBorder } from '@mui/icons-material';
-import { Product } from '@types';
-import { useCart } from '@hooks/useCart';
+import { Product } from '../../types';
+import { useCart } from '../../hooks/useCart';
+import { useFavorites } from '../../hooks/useFavorites';
 
 interface ProductCardProps {
   product: Product;
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
-  const { addToCart } = useCart();
+  const { addToCart, isInCart, isLoading: isCartLoading } = useCart();
+  const { isFavorite, toggleFavorite, isLoading: isFavoriteLoading } = useFavorites();
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
-    addToCart({
-      productId: product.id,
-      quantity: 1,
-    });
+    addToCart({ product });
+  };
+
+  const handleToggleFavorite = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleFavorite(product);
   };
 
   const discountPercentage = product.originalPrice
@@ -89,6 +94,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         )}
         
         <IconButton
+          onClick={handleToggleFavorite}
+          disabled={isFavoriteLoading}
           sx={{
             position: 'absolute',
             top: 8,
@@ -100,7 +107,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           }}
           size="small"
         >
-          <FavoriteBorder />
+          {isFavorite(product.id) ? <Favorite color="error" /> : <FavoriteBorder />}
         </IconButton>
       </Box>
 
@@ -149,21 +156,40 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           )}
         </Box>
 
-        <Button
-          variant="contained"
-          startIcon={<ShoppingCartIcon />}
-          onClick={handleAddToCart}
-          fullWidth
-          disabled={!product.inStock}
-          sx={{
-            borderRadius: 2,
-            py: 1,
-            textTransform: 'none',
-            fontWeight: 600,
-          }}
-        >
-          {product.inStock ? 'Add to Cart' : 'Out of Stock'}
-        </Button>
+        {isInCart(product.id) ? (
+          <Button
+            component={Link}
+            to="/cart"
+            variant="outlined"
+            startIcon={<ShoppingCartIcon />}
+            fullWidth
+            disabled={isCartLoading}
+            sx={{
+              borderRadius: 2,
+              py: 1,
+              textTransform: 'none',
+              fontWeight: 600,
+            }}
+          >
+            View Cart
+          </Button>
+        ) : (
+          <Button
+            variant="contained"
+            startIcon={<ShoppingCartIcon />}
+            onClick={handleAddToCart}
+            fullWidth
+            disabled={isCartLoading || !product.inStock}
+            sx={{
+              borderRadius: 2,
+              py: 1,
+              textTransform: 'none',
+              fontWeight: 600,
+            }}
+          >
+            {product.inStock ? 'Add to Cart' : 'Out of Stock'}
+          </Button>
+        )}
       </CardContent>
     </Card>
   );

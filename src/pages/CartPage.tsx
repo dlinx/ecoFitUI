@@ -9,64 +9,77 @@ import {
   Grid,
   Button,
   IconButton,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
   TextField,
   Divider,
-  Chip,
+  Chip
 } from '@mui/material';
-import { Delete, Add, Remove, ShoppingBag } from '@mui/icons-material';
+import { Delete } from '@mui/icons-material';
 import { useCart } from '@hooks/useCart';
-import { useProducts } from '@hooks/useContentstack';
 
 const CartPage: React.FC = () => {
-  const { cart, removeFromCart, updateQuantity, clearCart } = useCart();
-  const { data: allProducts = [] } = useProducts();
+  const { cart, removeFromCart, updateQuantity, clearCart, isLoading } = useCart();
 
-  const cartProductsWithDetails = cart.items.map(item => {
-    const product = allProducts.find(p => p.id === item.productId);
-    return {
-      ...item,
-      product,
-    };
-  }).filter(item => item.product);
+  // Cart already contains full product objects, no need to fetch from API
+  const cartItems = cart.items;
 
-  const subtotal = cartProductsWithDetails.reduce(
-    (sum, item) => sum + (item.product!.price * item.quantity),
-    0
-  );
-
-  const shipping = subtotal > 50 ? 0 : 9.99;
-  const tax = subtotal * 0.08;
+  const subtotal = cart.total; // Use the calculated total from the cart
+  const shipping = subtotal > 500 ? 0 : 99; // Free shipping over ₹500
+  const tax = subtotal * 0.18; // 18% GST
   const total = subtotal + shipping + tax;
+
+  const handleQuantityChange = (productId: string, newQuantity: number) => {
+    updateQuantity({ productId, quantity: newQuantity });
+  };
+
+  const handleRemoveItem = (productId: string) => {
+    removeFromCart(productId);
+  };
+
+  const handleClearCart = () => {
+    clearCart();
+  };
+
+  if (isLoading) {
+    return (
+      <Container maxWidth="lg" sx={{ py: 4 }}>
+        <Typography variant="h6" textAlign="center">
+          Loading cart...
+        </Typography>
+      </Container>
+    );
+  }
 
   if (cart.items.length === 0) {
     return (
       <>
         <Helmet>
           <title>Shopping Cart - EcoFit</title>
+          <meta name="description" content="Your shopping cart" />
         </Helmet>
-        
-        <Container maxWidth="lg" sx={{ py: 8, textAlign: 'center' }}>
-          <ShoppingBag sx={{ fontSize: 64, color: 'text.secondary', mb: 2 }} />
-          <Typography variant="h4" sx={{ mb: 2 }}>
-            Your cart is empty
-          </Typography>
-          <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
-            Add some products to get started
-          </Typography>
-          <Button
-            component={Link}
-            to="/search"
-            variant="contained"
-            size="large"
-          >
-            Continue Shopping
-          </Button>
+
+        <Container maxWidth="lg" sx={{ py: 4 }}>
+          <Box sx={{ textAlign: 'center', py: 8 }}>
+            <Typography variant="h4" component="h1" sx={{ fontWeight: 700, mb: 2 }}>
+              Your Cart is Empty
+            </Typography>
+            <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
+              Looks like you haven't added any products to your cart yet.
+            </Typography>
+            <Button
+              component={Link}
+              to="/"
+              variant="contained"
+              size="large"
+              sx={{
+                py: 1.5,
+                px: 4,
+                textTransform: 'none',
+                fontWeight: 600,
+              }}
+            >
+              Continue Shopping
+            </Button>
+          </Box>
         </Container>
       </>
     );
@@ -75,13 +88,19 @@ const CartPage: React.FC = () => {
   return (
     <>
       <Helmet>
-        <title>Shopping Cart ({cart.itemCount}) - EcoFit</title>
+        <title>Shopping Cart - EcoFit</title>
+        <meta name="description" content="Your shopping cart" />
       </Helmet>
 
       <Container maxWidth="lg" sx={{ py: 4 }}>
-        <Typography variant="h4" sx={{ mb: 4, fontWeight: 700 }}>
-          Shopping Cart
-        </Typography>
+        <Box sx={{ mb: 4 }}>
+          <Typography variant="h4" component="h1" sx={{ fontWeight: 700, mb: 1 }}>
+            Shopping Cart
+          </Typography>
+          <Typography variant="body1" color="text.secondary">
+            {cart.itemCount} {cart.itemCount === 1 ? 'item' : 'items'} in your cart
+          </Typography>
+        </Box>
 
         <Grid container spacing={4}>
           {/* Cart Items */}
@@ -94,115 +113,105 @@ const CartPage: React.FC = () => {
                 <Button
                   variant="outlined"
                   size="small"
-                  onClick={clearCart}
+                  onClick={handleClearCart}
                   color="error"
                 >
                   Clear Cart
                 </Button>
               </Box>
 
-              <TableContainer>
-                <Table>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Product</TableCell>
-                      <TableCell align="center">Quantity</TableCell>
-                      <TableCell align="right">Price</TableCell>
-                      <TableCell align="right">Total</TableCell>
-                      <TableCell align="center">Actions</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {cartProductsWithDetails.map((item) => (
-                      <TableRow key={item.productId}>
-                        <TableCell>
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                            <Box
-                              component="img"
-                              src={item.product!.images[0]}
-                              alt={item.product!.title}
-                              sx={{
-                                width: 60,
-                                height: 60,
-                                objectFit: 'cover',
-                                borderRadius: 1,
-                              }}
-                            />
-                            <Box>
-                              <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-                                {item.product!.title}
-                              </Typography>
-                              <Typography variant="body2" color="text.secondary">
-                                {item.product!.category}
-                              </Typography>
-                            </Box>
-                          </Box>
-                        </TableCell>
-                        <TableCell align="center">
-                          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <IconButton
-                              size="small"
-                              onClick={() => updateQuantity(item.productId, item.quantity - 1)}
-                            >
-                              <Remove />
-                            </IconButton>
-                            <TextField
-                              size="small"
-                              value={item.quantity}
-                              onChange={(e) => updateQuantity(item.productId, parseInt(e.target.value) || 1)}
-                              sx={{ width: 60, mx: 1 }}
-                              inputProps={{ min: 1, style: { textAlign: 'center' } }}
-                            />
-                            <IconButton
-                              size="small"
-                              onClick={() => updateQuantity(item.productId, item.quantity + 1)}
-                            >
-                              <Add />
-                            </IconButton>
-                          </Box>
-                        </TableCell>
-                        <TableCell align="right">
-                          <Typography variant="body1" sx={{ fontWeight: 600 }}>
-                            ${item.product!.price}
-                          </Typography>
-                        </TableCell>
-                        <TableCell align="right">
-                          <Typography variant="body1" sx={{ fontWeight: 600 }}>
-                            ${(item.product!.price * item.quantity).toFixed(2)}
-                          </Typography>
-                        </TableCell>
-                        <TableCell align="center">
-                          <IconButton
-                            color="error"
-                            onClick={() => removeFromCart(item.productId)}
+              {/* Card-style cart items */}
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                {cartItems.map((item) => (
+                  <Paper key={item.productId} elevation={1} sx={{ p: 2, display: 'flex', alignItems: 'flex-start', position: 'relative' }}>
+                    {/* Remove button */}
+                    <IconButton
+                      color="inherit"
+                      onClick={() => handleRemoveItem(item.productId)}
+                      sx={{ position: 'absolute', top: 12, right: 12 }}
+                      aria-label="Remove item"
+                    >
+                      <Delete />
+                    </IconButton>
+
+                    {/* Product Image */}
+                    <Box
+                      component="img"
+                      src={item.product.images[0]}
+                      alt={item.product.title}
+                      sx={{ width: 220, height: 260, objectFit: 'cover', borderRadius: 2, mr: 4 }}
+                    />
+
+                    {/* Product Details */}
+                    <Box sx={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 1 }}>
+                      <Typography variant="h5" sx={{ fontWeight: 700, mb: 1, fontFamily: 'monospace' }}>
+                        {item.product.title}
+                      </Typography>
+                      {item.product.description && (
+                        <Typography variant="body1" color="text.secondary" sx={{ mb: 1, fontWeight: 500 }}>
+                          {item.product.description}
+                        </Typography>
+                      )}
+                      <Typography variant="h6" sx={{ fontWeight: 700, mt: 1 }}>
+                        Rs. {item.product.price.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                      </Typography>
+
+                      {/* Quantity selector */}
+                      <Box sx={{ mt: 3 }}>
+                        <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1 }}>
+                          QUANTITY
+                        </Typography>
+                        <Box sx={{ width: 120 }}>
+                          <TextField
+                            select
+                            SelectProps={{ native: true }}
+                            size="small"
+                            value={item.quantity}
+                            onChange={(e) => {
+                              const value = parseInt(e.target.value);
+                              if (!isNaN(value) && value > 0) {
+                                handleQuantityChange(item.productId, value);
+                              }
+                            }}
+                            sx={{ width: '100%' }}
+                            inputProps={{ style: { fontSize: 22, fontWeight: 500, textAlign: 'center' } }}
                           >
-                            <Delete />
-                          </IconButton>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
+                            {[...Array(10)].map((_, i) => (
+                              <option key={i + 1} value={i + 1}>{i + 1}</option>
+                            ))}
+                          </TextField>
+                        </Box>
+                      </Box>
+                    </Box>
+
+                    {/* Subtotal at bottom right */}
+                    <Box sx={{ position: 'absolute', right: 32, bottom: 24, textAlign: 'right' }}>
+                      <Typography variant="subtitle1" sx={{ fontWeight: 700, letterSpacing: 1 }}>
+                        SUBTOTAL: Rs. {(item.product.price * item.quantity).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                      </Typography>
+                    </Box>
+                  </Paper>
+                ))}
+              </Box>
             </Paper>
           </Grid>
 
           {/* Order Summary */}
           <Grid item xs={12} md={4}>
-            <Paper elevation={2} sx={{ p: 3 }}>
+            <Paper elevation={2} sx={{ p: 3, position: 'sticky', top: 64, zIndex: 1 }}>
               <Typography variant="h6" sx={{ mb: 3 }}>
                 Order Summary
               </Typography>
 
               <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
                 <Typography>Subtotal</Typography>
-                <Typography>${subtotal.toFixed(2)}</Typography>
+                <Typography>₹{subtotal.toFixed(2)}</Typography>
               </Box>
 
               <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
                 <Typography>Shipping</Typography>
                 <Box sx={{ textAlign: 'right' }}>
-                  <Typography>${shipping.toFixed(2)}</Typography>
+                  <Typography>₹{shipping.toFixed(2)}</Typography>
                   {shipping === 0 && (
                     <Chip label="Free" color="success" size="small" />
                   )}
@@ -211,7 +220,7 @@ const CartPage: React.FC = () => {
 
               <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
                 <Typography>Tax</Typography>
-                <Typography>${tax.toFixed(2)}</Typography>
+                <Typography>₹{tax.toFixed(2)}</Typography>
               </Box>
 
               <Divider sx={{ my: 2 }} />
@@ -219,7 +228,7 @@ const CartPage: React.FC = () => {
               <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
                 <Typography variant="h6">Total</Typography>
                 <Typography variant="h6" sx={{ fontWeight: 700 }}>
-                  ${total.toFixed(2)}
+                  ₹{total.toFixed(2)}
                 </Typography>
               </Box>
 
@@ -245,7 +254,7 @@ const CartPage: React.FC = () => {
               {shipping > 0 && (
                 <Box sx={{ mt: 3, p: 2, bgcolor: 'info.light', borderRadius: 1 }}>
                   <Typography variant="body2" color="info.contrastText">
-                    Add ${(50 - subtotal).toFixed(2)} more to get free shipping!
+                    Add ₹{(500 - subtotal).toFixed(2)} more to get free shipping!
                   </Typography>
                 </Box>
               )}
