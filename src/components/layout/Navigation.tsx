@@ -65,7 +65,6 @@ const Navigation: React.FC<NavigationProps> = ({ navigation }) => {
             },
           }}
         >
-          {JSON.stringify(child)}
           <ListItemText
             primary={child.title}
             primaryTypographyProps={{
