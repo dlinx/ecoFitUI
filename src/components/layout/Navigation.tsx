@@ -94,8 +94,10 @@ const Navigation: React.FC<NavigationProps> = ({ navigation }) => {
         sx={{
           mx: 1,
           textTransform: 'none',
+          color: '#1A1A1A',
           '&:hover': {
-            backgroundColor: 'rgba(255, 255, 255, 0.1)',
+            backgroundColor: 'rgba(26, 26, 26, 0.08)',
+            backdropFilter: 'blur(2px)',
           },
         }}
       >

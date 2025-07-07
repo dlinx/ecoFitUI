@@ -113,7 +113,189 @@ export interface EntryBanner {
 }
 
 export interface TrendingProduct {
-  _content_type_uid: string;
+  uid: string;
+  _version: number;
+  locale: string;
+  ACL: Record<string, any>;
+  _in_progress: boolean;
+  category: Array<{
+    _content_type_uid: string;
+    uid: string;
+    _version: number;
+    locale: string;
+    ACL: Record<string, any>;
+    _in_progress: boolean;
+    created_at: string;
+    created_by: string;
+    description: string;
+    tags: string[];
+    title: string;
+    updated_at: string;
+    updated_by: string;
+    publish_details: {
+      time: string;
+      user: string;
+      environment: string;
+      locale: string;
+    };
+  }>;
+  class: Array<{
+    _content_type_uid: string;
+    uid: string;
+    _version: number;
+    locale: string;
+    ACL: Record<string, any>;
+    _in_progress: boolean;
+    created_at: string;
+    created_by: string;
+    description: string;
+    tags: string[];
+    title: string;
+    updated_at: string;
+    updated_by: string;
+    publish_details: {
+      time: string;
+      user: string;
+      environment: string;
+      locale: string;
+    };
+  }>;
+  created_at: string;
+  created_by: string;
+  description: {
+    details: string;
+    material_and_care: string;
+  };
+  gender: Array<{
+    _content_type_uid: string;
+    uid: string;
+    _version: number;
+    locale: string;
+    ACL: Record<string, any>;
+    _in_progress: boolean;
+    created_at: string;
+    created_by: string;
+    description: string;
+    tags: string[];
+    title: string;
+    updated_at: string;
+    updated_by: string;
+    publish_details: {
+      time: string;
+      user: string;
+      environment: string;
+      locale: string;
+    };
+  }>;
+  images: Array<{
+    uid: string;
+    _version: number;
+    parent_uid: string | null;
+    title: string;
+    created_by: string;
+    updated_by: string;
+    created_at: string;
+    updated_at: string;
+    content_type: string;
+    file_size: string;
+    filename: string;
+    ACL: Record<string, any>;
+    is_dir: boolean;
+    tags: string[];
+    publish_details: {
+      time: string;
+      user: string;
+      environment: string;
+      locale: string;
+    };
+    url: string;
+    permanent_url: string;
+  }>;
+  sku: Array<{
+    sku_code: string;
+    color: Array<{
+      _content_type_uid: string;
+      uid: string;
+      _version: number;
+      locale: string;
+      ACL: Record<string, any>;
+      _in_progress: boolean;
+      created_at: string;
+      created_by: string;
+      description: string;
+      tags: string[];
+      title: string;
+      updated_at: string;
+      updated_by: string;
+      publish_details: {
+        time: string;
+        user: string;
+        environment: string;
+        locale: string;
+      };
+    }>;
+    size: Array<{
+      _content_type_uid: string;
+      uid: string;
+      _version: number;
+      locale: string;
+      ACL: Record<string, any>;
+      _in_progress: boolean;
+      created_at: string;
+      created_by: string;
+      description: string;
+      tags: string[];
+      title: string;
+      updated_at: string;
+      updated_by: string;
+      publish_details: {
+        time: string;
+        user: string;
+        environment: string;
+        locale: string;
+      };
+    }>;
+    inventory: number | null;
+    price: number;
+    discount: number;
+    _metadata: {
+      uid: string;
+    };
+  }>;
+  sub_category: Array<{
+    _content_type_uid: string;
+    uid: string;
+    _version: number;
+    locale: string;
+    ACL: Record<string, any>;
+    _in_progress: boolean;
+    created_at: string;
+    created_by: string;
+    description: string;
+    tags: string[];
+    title: string;
+    updated_at: string;
+    updated_by: string;
+    publish_details: {
+      time: string;
+      user: string;
+      environment: string;
+      locale: string;
+    };
+  }>;
+  tags: string[];
+  title: string;
+  updated_at: string;
+  updated_by: string;
+  publish_details: {
+    time: string;
+    user: string;
+    environment: string;
+    locale: string;
+  };
+}
+
+export interface DetailedProduct {
   uid: string;
   _version: number;
   locale: string;

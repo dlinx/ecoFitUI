@@ -265,8 +265,9 @@ const ProductSlider: React.FC<ProductSliderProps> = ({
                   </Box>
                   <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
                     <Typography
+                      component={Link}
+                      to={`/product/${product.id}`}
                       variant="h6"
-                      component="h3"
                       sx={{
                         mb: 1,
                         fontWeight: 600,
@@ -275,6 +276,11 @@ const ProductSlider: React.FC<ProductSliderProps> = ({
                         WebkitLineClamp: 2,
                         WebkitBoxOrient: 'vertical',
                         overflow: 'hidden',
+                        textDecoration: 'none',
+                        color: 'text.primary',
+                        '&:hover': {
+                          color: 'primary.main',
+                        },
                       }}
                     >
                       {product.title}

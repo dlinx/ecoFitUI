@@ -23,9 +23,12 @@ import Navigation from './Navigation';
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
   borderRadius: theme.shape.borderRadius,
-  backgroundColor: alpha(theme.palette.common.white, 0.15),
+  backgroundColor: 'rgba(255, 255, 255, 1)',
+  backdropFilter: 'blur(10px)',
+  border: '1px solid rgba(255, 255, 255, 0.2)',
   '&:hover': {
-    backgroundColor: alpha(theme.palette.common.white, 0.25),
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    backdropFilter: 'blur(15px)',
   },
   marginRight: theme.spacing(2),
   marginLeft: 0,
@@ -44,15 +47,21 @@ const SearchIconWrapper = styled('div')(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
+  color: '#1A1A1A',
 }));
 
 const StyledInputBase = styled(InputBase)(({ theme }) => ({
-  color: 'inherit',
+  color: '#1A1A1A',
   '& .MuiInputBase-input': {
     padding: theme.spacing(1, 1, 1, 0),
     paddingLeft: `calc(1em + ${theme.spacing(4)})`,
     transition: theme.transitions.create('width'),
     width: '100%',
+    color: '#1A1A1A',
+    '&::placeholder': {
+      color: 'rgba(26, 26, 26, 0.6)',
+      opacity: 1,
+    },
     [theme.breakpoints.up('md')]: {
       width: '20ch',
     },
@@ -74,7 +83,7 @@ const Header: React.FC = () => {
   };
 
   return (
-    <AppBar position="sticky" sx={{ backgroundColor: 'primary.main' }}>
+    <AppBar position="sticky">
       <Toolbar>
         <IconButton
           size="large"
@@ -95,7 +104,7 @@ const Header: React.FC = () => {
             mr: 2,
             display: { xs: 'none', md: 'flex' },
             fontWeight: 700,
-            color: 'inherit',
+            color: '#1A1A1A',
             textDecoration: 'none',
           }}
         >
@@ -126,6 +135,7 @@ const Header: React.FC = () => {
             component={Link}
             to="/cart"
             aria-label="shopping cart"
+            sx={{ color: '#1A1A1A' }}
           >
             <Badge badgeContent={cart.itemCount} color="secondary">
               <ShoppingCartIcon />

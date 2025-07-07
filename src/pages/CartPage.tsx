@@ -144,7 +144,21 @@ const CartPage: React.FC = () => {
 
                     {/* Product Details */}
                     <Box sx={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 1 }}>
-                      <Typography variant="h5" sx={{ fontWeight: 700, mb: 1, fontFamily: 'monospace' }}>
+                      <Typography 
+                        component={Link}
+                        to={`/product/${item.product.id}`}
+                        variant="h5" 
+                        sx={{ 
+                          fontWeight: 700, 
+                          mb: 1, 
+                          fontFamily: 'monospace',
+                          textDecoration: 'none',
+                          color: 'text.primary',
+                          '&:hover': {
+                            color: 'primary.main',
+                          },
+                        }}
+                      >
                         {item.product.title}
                       </Typography>
                       {item.product.description && (

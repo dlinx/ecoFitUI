@@ -47,7 +47,6 @@ const HomePage: React.FC = () => {
           maxItems={8}
           showRating={true}
           showCategory={true}
-          backgroundColor="grey.50"
           showNavigation={true}
         />
         

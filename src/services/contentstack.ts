@@ -1,5 +1,5 @@
 import { Stack } from 'contentstack';
-import { ContentstackConfig, Product, Category, Banner, HomePage } from '../types';
+import { ContentstackConfig, Product, Category, Banner, HomePage, DetailedProduct } from '../types';
 
 class ContentstackService {
   private stack: Stack | null;
@@ -56,18 +56,20 @@ class ContentstackService {
     }
   }
 
-  async getProduct(id: string): Promise<Product | null> {
+  async getProduct(id: string): Promise<DetailedProduct | null> {
     if (!this.stack) {
-      return this.getMockProduct(id);
+      throw new Error('Contentstack is not initialized');
     }
 
     try {
-      const query = this.stack.ContentType('products').Entry(id);
-      const result = await query.fetch();
+      const query = this.stack.ContentType('product').Entry(id);
+      query.includeReference(['images', 'sku', 'category', 'class', 'gender', 'tags', 'description', 'sku.color', 'sku.size','sub_category']);
+
+      const result = await query.toJSON().fetch();
       return result || null;
     } catch (error) {
       console.error('Error fetching product from Contentstack:', error);
-      return this.getMockProduct(id);
+      throw new Error('Error fetching product from Contentstack');
     }
   }
 
