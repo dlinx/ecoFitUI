@@ -211,8 +211,8 @@ const CartPage: React.FC = () => {
               <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
                 <Typography>Shipping</Typography>
                 <Box sx={{ textAlign: 'right' }}>
-                  <Typography>₹{shipping.toFixed(2)}</Typography>
-                  {shipping === 0 && (
+                  {shipping !== 0 ? (
+                    <Typography>₹{shipping.toFixed(2)}</Typography>) : (
                     <Chip label="Free" color="success" size="small" />
                   )}
                 </Box>

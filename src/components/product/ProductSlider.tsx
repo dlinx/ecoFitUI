@@ -225,10 +225,9 @@ const ProductSlider: React.FC<ProductSliderProps> = ({
                   <Box sx={{ position: 'relative' }}>
                     <CardMedia
                       component="img"
-                      height="200"
                       image={product.images[0]}
                       alt={product.title}
-                      sx={{ objectFit: 'cover' }}
+                      sx={{ height: '264px', width: '264px', objectFit: 'fill' }}
                     />
                     {product.originalPrice && product.originalPrice > product.price && (
                       <Chip
