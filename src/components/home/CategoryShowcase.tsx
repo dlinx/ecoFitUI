@@ -10,16 +10,18 @@ import {
   CardContent,
   Button,
 } from '@mui/material';
-import { Category } from '@types';
+import { Category } from '../../types';
 import LoadingSkeleton from '@components/common/LoadingSkeleton';
 
 interface CategoryShowcaseProps {
   categories: Category[];
   isLoading?: boolean;
   error?: Error | null;
+  title?: string;
+  subtitle?: string;
 }
 
-const CategoryShowcase: React.FC<CategoryShowcaseProps> = ({ categories, isLoading, error }) => {
+const CategoryShowcase: React.FC<CategoryShowcaseProps> = ({ categories, isLoading, error, title, subtitle }) => {
   if (isLoading) {
     return (
       <Container maxWidth="lg" sx={{ py: 6 }}>
@@ -50,7 +52,7 @@ const CategoryShowcase: React.FC<CategoryShowcaseProps> = ({ categories, isLoadi
           color: 'text.primary',
         }}
       >
-        Shop by Category
+        {title || 'Shop by Category'}
       </Typography>
       <Typography
         variant="h6"
@@ -58,7 +60,7 @@ const CategoryShowcase: React.FC<CategoryShowcaseProps> = ({ categories, isLoadi
         color="text.secondary"
         sx={{ mb: 4 }}
       >
-        Find the perfect gear for your fitness journey
+        {subtitle || 'Find the perfect gear for your fitness journey'}
       </Typography>
 
       <Grid container spacing={4}>

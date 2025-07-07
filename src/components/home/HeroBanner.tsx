@@ -1,10 +1,10 @@
 import React from 'react';
 import { Box, Typography, Button, Container } from '@mui/material';
 import { Link } from 'react-router-dom';
-import { Banner } from '@types';
+import { EntryBanner } from '../../types';
 
 interface HeroBannerProps {
-  banner: Banner;
+  banner: EntryBanner;
 }
 
 const HeroBanner: React.FC<HeroBannerProps> = ({ banner }) => {
@@ -18,7 +18,7 @@ const HeroBanner: React.FC<HeroBannerProps> = ({ banner }) => {
         justifyContent: 'center',
         color: 'white',
         textAlign: 'center',
-        backgroundImage: `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url(${banner.image})`,
+        backgroundImage: `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url(${banner.banner.banner_background.url})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',
@@ -34,21 +34,34 @@ const HeroBanner: React.FC<HeroBannerProps> = ({ banner }) => {
             fontSize: { xs: '2rem', md: '3rem' },
           }}
         >
-          {banner.title}
+          {banner.banner.banner_header}
         </Typography>
         <Typography
           variant="h5"
           sx={{
-            mb: 4,
+            mb: 2,
             opacity: 0.9,
             fontSize: { xs: '1.2rem', md: '1.5rem' },
           }}
         >
-          {banner.subtitle}
+          {banner.banner.banner_subtitle}
         </Typography>
+        {banner.banner.price && (
+          <Typography
+            variant="h4"
+            sx={{
+              mb: 4,
+              fontWeight: 600,
+              color: 'primary.main',
+              fontSize: { xs: '1.5rem', md: '2rem' },
+            }}
+          >
+            ₹{banner.banner.price}
+          </Typography>
+        )}
         <Button
           component={Link}
-          to={banner.ctaLink}
+          to="/products"
           variant="contained"
           size="large"
           sx={{
@@ -63,7 +76,7 @@ const HeroBanner: React.FC<HeroBannerProps> = ({ banner }) => {
             },
           }}
         >
-          {banner.ctaText}
+          Shop Now
         </Button>
       </Container>
     </Box>

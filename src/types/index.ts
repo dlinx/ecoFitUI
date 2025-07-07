@@ -65,6 +65,94 @@ export interface Banner {
   isActive: boolean;
 }
 
+// Navigation types based on Contentstack response
+export interface NavigationItem {
+  title: string;
+  href: string;
+  uuid?: number;
+}
+
+export interface CategoryChild {
+  category_title: NavigationItem;
+  _metadata: {
+    uid: string;
+  };
+  category_childs: NavigationItem[];
+}
+
+export interface NavigationGroup {
+  class_title: NavigationItem;
+  _metadata: {
+    uid: string;
+  };
+  class_childrens: CategoryChild[];
+}
+
+export interface Menu {
+  uid: string;
+  title: string;
+  navigation_group: NavigationGroup[];
+  _metadata?: {
+    uid: string;
+  };
+}
+
+export interface EntryBanner {
+  banner: {
+    banner_header: string;
+    banner_subtitle: string;
+    price: string;
+    banner_background: {
+      url: string;
+      title: string;
+    };
+    _metadata: {
+      uid: string;
+    };
+  };
+}
+
+export interface TrendingSection {
+  trending_1: {
+    trending_items: Array<{
+      uid: string;
+      _content_type_uid: string;
+    }>;
+    _metadata: {
+      uid: string;
+    };
+  };
+}
+
+export interface WishlistSection {
+  wishlist_items: {
+    wishlist_items: Array<{
+      uid: string;
+      _content_type_uid: string;
+    }>;
+    _metadata: {
+      uid: string;
+    };
+  };
+}
+
+export interface HomePage {
+  uid: string;
+  title: string;
+  app_navigation: Menu[];
+  entry_banner: EntryBanner[];
+  trending: TrendingSection[];
+  wishlist: WishlistSection[];
+  metaTitle?: string;
+  metaDescription?: string;
+  metaKeywords?: string;
+  seoSection?: {
+    ogTitle?: string;
+    ogDescription?: string;
+    ogImage?: string;
+  };
+}
+
 export interface SearchParams {
   q?: string;
   gender?: string;

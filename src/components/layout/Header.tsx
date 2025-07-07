@@ -18,6 +18,8 @@ import {
   Menu as MenuIcon,
 } from '@mui/icons-material';
 import { useCart } from '@hooks/useCart';
+import { useHomePage } from '@hooks/useContentstack';
+import Navigation from './Navigation';
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -61,6 +63,7 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 const Header: React.FC = () => {
   const navigate = useNavigate();
   const { cart } = useCart();
+  const { data: homePage } = useHomePage();
 
   const handleSearch = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {
@@ -101,30 +104,9 @@ const Header: React.FC = () => {
         </Typography>
 
         <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-          <Button
-            component={Link}
-            to="/men"
-            color="inherit"
-            sx={{ mx: 1 }}
-          >
-            Men
-          </Button>
-          <Button
-            component={Link}
-            to="/women"
-            color="inherit"
-            sx={{ mx: 1 }}
-          >
-            Women
-          </Button>
-          <Button
-            component={Link}
-            to="/categories"
-            color="inherit"
-            sx={{ mx: 1 }}
-          >
-            Categories
-          </Button>
+          {homePage?.app_navigation && (
+            <Navigation navigation={homePage.app_navigation} />
+          )}
         </Box>
 
         <Search>

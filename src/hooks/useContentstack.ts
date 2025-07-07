@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import contentstackService from '@services/contentstack';
-import { Product, Category, Banner, SearchParams } from '@types';
+import { SearchParams } from '../types';
 
 export const useProducts = (params: SearchParams = {}) => {
   return useQuery({
@@ -39,6 +39,15 @@ export const useBanners = () => {
   });
 };
 
+export const useHomePage = () => {
+  return useQuery({
+    queryKey: ['homePage'],
+    queryFn: () => contentstackService.getHomePage(),
+    staleTime: 1000 * 60 * 15, // 15 minutes
+    gcTime: 1000 * 60 * 30, // 30 minutes
+  });
+};
+
 export const useSearchProducts = (query: string, filters: any = {}) => {
   return useQuery({
     queryKey: ['search', query, filters],
@@ -57,6 +66,7 @@ export const useInvalidateQueries = () => {
     invalidateProduct: (id: string) => queryClient.invalidateQueries({ queryKey: ['product', id] }),
     invalidateCategories: () => queryClient.invalidateQueries({ queryKey: ['categories'] }),
     invalidateBanners: () => queryClient.invalidateQueries({ queryKey: ['banners'] }),
+    invalidateHomePage: () => queryClient.invalidateQueries({ queryKey: ['homePage'] }),
     invalidateSearch: () => queryClient.invalidateQueries({ queryKey: ['search'] }),
   };
 };

@@ -35,15 +35,9 @@ function App() {
                 <Routes>
                   <Route path="/" element={<HomePage />} />
                   <Route path="/search" element={<SearchPage />} />
-                  <Route path="/men" element={<SearchPage />} />
-                  <Route path="/women" element={<SearchPage />} />
-                  <Route path="/men/:class" element={<SearchPage />} />
-                  <Route path="/women/:class" element={<SearchPage />} />
-                  <Route path="/men/:class/:category" element={<SearchPage />} />
-                  <Route path="/women/:class/:category" element={<SearchPage />} />
-                  <Route path="/category/:category" element={<SearchPage />} />
                   <Route path="/product/:id" element={<ProductDetailsPage />} />
                   <Route path="/cart" element={<CartPage />} />
+                  <Route path="/:category/:class?/:subcategory?" element={<SearchPage />} />
                 </Routes>
               </Layout>
             </Router>

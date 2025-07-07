@@ -1,15 +1,17 @@
 import React from 'react';
 import { Box, Typography, Container } from '@mui/material';
-import { Product } from '@types';
+import { Product } from '../../types';
 import ProductGrid from '@components/product/ProductGrid';
 
 interface FeaturedProductsProps {
   products: Product[];
   isLoading?: boolean;
   error?: Error | null;
+  title?: string;
+  subtitle?: string;
 }
 
-const FeaturedProducts: React.FC<FeaturedProductsProps> = ({ products, isLoading, error }) => {
+const FeaturedProducts: React.FC<FeaturedProductsProps> = ({ products, isLoading, error, title, subtitle }) => {
   return (
     <Container maxWidth="lg" sx={{ py: 6 }}>
       <Typography
@@ -22,7 +24,7 @@ const FeaturedProducts: React.FC<FeaturedProductsProps> = ({ products, isLoading
           color: 'text.primary',
         }}
       >
-        Featured Products
+        {title || 'Featured Products'}
       </Typography>
       <Typography
         variant="h6"
@@ -30,7 +32,7 @@ const FeaturedProducts: React.FC<FeaturedProductsProps> = ({ products, isLoading
         color="text.secondary"
         sx={{ mb: 4 }}
       >
-        Discover our most popular sustainable fitness gear
+        {subtitle || 'Discover our most popular sustainable fitness gear'}
       </Typography>
       
       <ProductGrid products={products} isLoading={isLoading} error={error} />

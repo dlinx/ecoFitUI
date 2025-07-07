@@ -1,8 +1,8 @@
-import * as contentstack from 'contentstack';
-import { ContentstackConfig, Product, Category, Banner } from '@types';
+import { Stack } from 'contentstack';
+import { ContentstackConfig, Product, Category, Banner, HomePage } from '../types';
 
 class ContentstackService {
-  private stack: any;
+  private stack: Stack | null;
   private config: ContentstackConfig;
 
   constructor() {
@@ -10,27 +10,28 @@ class ContentstackService {
       apiKey: import.meta.env.VITE_CONTENTSTACK_API_KEY || '',
       deliveryToken: import.meta.env.VITE_CONTENTSTACK_DELIVERY_TOKEN || '',
       environment: import.meta.env.VITE_CONTENTSTACK_ENVIRONMENT || 'development',
-      region: import.meta.env.VITE_CONTENTSTACK_REGION || 'us',
+      region: import.meta.env.VITE_CONTENTSTACK_REGION || 'NA',
     };
-
     if (this.config.apiKey && this.config.deliveryToken) {
-      this.stack = contentstack.Stack({
+      this.stack = Stack({
         api_key: this.config.apiKey,
         delivery_token: this.config.deliveryToken,
         environment: this.config.environment,
-        region: this.config.region,
+        region: this.config.region as any,
       });
+    } else {
+      this.stack = null;
     }
   }
 
   async getProducts(params: any = {}): Promise<Product[]> {
     if (!this.stack) {
-      return this.getMockProducts();
+      throw new Error('Contentstack is not initialized');
     }
 
     try {
       const query = this.stack.ContentType('products').Query();
-      
+
       if (params.gender) {
         query.where('gender', params.gender);
       }
@@ -72,7 +73,7 @@ class ContentstackService {
 
   async getCategories(): Promise<Category[]> {
     if (!this.stack) {
-      return this.getMockCategories();
+      throw new Error('Contentstack is not initialized');
     }
 
     try {
@@ -101,9 +102,25 @@ class ContentstackService {
     }
   }
 
+  async getHomePage(): Promise<HomePage | null> {
+    try {
+      const query = this.stack!.ContentType('home_page').Query();
+      query.limit(1);
+      query.includeReference('app_navigation');
+      query.includeReference('entry_banner.banner');
+      query.includeReference('trending.trending_1.trending_items');
+      query.includeReference('wishlist.wishlist_items.wishlist_items');
+      const result = await query.toJSON().findOne();
+      return result || null;
+    } catch (error) {
+      console.error('Error fetching home page from Contentstack:', error);
+      return null;
+    }
+  }
+
   async searchProducts(searchQuery: string, filters: any = {}): Promise<Product[]> {
     if (!this.stack) {
-      return this.getMockProducts().filter(product => 
+      return this.getMockProducts().filter(product =>
         product.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         product.description.toLowerCase().includes(searchQuery.toLowerCase())
       );
@@ -111,14 +128,14 @@ class ContentstackService {
 
     try {
       const query = this.stack.ContentType('products').Query();
-      
+
       if (searchQuery) {
         query.regex('title', searchQuery, 'i');
       }
-      
+
       Object.entries(filters).forEach(([key, value]) => {
         if (value && value !== '') {
-          query.where(key, value);
+          query.where(key, value as string | number | boolean);
         }
       });
 
