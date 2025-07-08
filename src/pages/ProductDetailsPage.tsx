@@ -130,7 +130,7 @@ const ProductDetailsPage: React.FC = () => {
         <meta name="description" content={product.description.details} />
         <meta property="og:title" content={product.title} />
         <meta property="og:description" content={product.description.details} />
-        <meta property="og:image" content={product.images[0].permanent_url} />
+        <meta property="og:image" content={product.images[0].url} />
         <meta property="og:type" content="product" />
       </Helmet>
 
@@ -177,7 +177,7 @@ const ProductDetailsPage: React.FC = () => {
                     <Box
                       key={index}
                       component="img"
-                      src={image.permanent_url}
+                      src={image.url}
                       alt={`${product.title} ${index + 1}`}
                       sx={{
                         width: '100%',
@@ -276,8 +276,8 @@ const ProductDetailsPage: React.FC = () => {
                           width: 40,
                           height: 40,
                           borderRadius: '50%',
-                          backgroundColor: getColorValue(color.title),
-                          border: selectedColor === color.uid ? '3px solid' : '2px solid',
+                          backgroundColor: color?.colorcode?.hex || '#e0e0e0',
+                          border: selectedColor === color.uid ? '2px solid' : '2px solid',
                           borderColor: selectedColor === color.uid ? 'primary.main' : 'grey.300',
                           cursor: 'pointer',
                           display: 'flex',
@@ -332,7 +332,7 @@ const ProductDetailsPage: React.FC = () => {
                     value={selectedSize}
                     exclusive
                     onChange={(_, newSize) => newSize && setSelectedSize(newSize)}
-                    sx={{ flexWrap: 'wrap', gap: 1 }}
+                    sx={{ flexWrap: 'wrap' }}
                   >
                     {distinctSizes.map((size) => {
                       const isAvailable = product.sku.some((skuItem) =>
@@ -350,9 +350,12 @@ const ProductDetailsPage: React.FC = () => {
                             minWidth: 50,
                             height: 40,
                             border: '2px solid',
-                            borderColor: selectedSize === size.uid ? 'primary.main' : 'grey.300',
+                            borderColor: 'grey.300',
                             backgroundColor: selectedSize === size.uid ? 'primary.main' : 'transparent',
                             color: selectedSize === size.uid ? 'white' : 'text.primary',
+                            '&.Mui-selected': {
+                              borderColor: 'primary.main',
+                            },
                             '&:hover': {
                               backgroundColor: selectedSize === size.uid ? 'primary.dark' : 'grey.100',
                             },
@@ -385,10 +388,10 @@ const ProductDetailsPage: React.FC = () => {
                 disabled={!selectedSku?.inventory || !selectedColor || !selectedSize}
                 sx={{ flex: 1 }}
               >
-                {!selectedColor || !selectedSize 
-                  ? 'Select Color & Size' 
-                  : selectedSku?.inventory 
-                    ? 'Add to Cart' 
+                {!selectedColor || !selectedSize
+                  ? 'Select Color & Size'
+                  : selectedSku?.inventory
+                    ? 'Add to Cart'
                     : 'Out of Stock'
                 }
               </Button>

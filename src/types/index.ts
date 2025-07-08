@@ -220,9 +220,32 @@ export interface TrendingProduct {
       locale: string;
       ACL: Record<string, any>;
       _in_progress: boolean;
+      colorcode?: {
+        hsl: {
+          h: number;
+          s: number;
+          l: number;
+          a: number;
+        };
+        hex: string;
+        rgb: {
+          r: number;
+          g: number;
+          b: number;
+          a: number;
+        };
+        hsv: {
+          h: number;
+          s: number;
+          v: number;
+          a: number;
+        };
+        oldHue: number;
+        source: string;
+      };
       created_at: string;
       created_by: string;
-      description: string;
+      description?: string;
       tags: string[];
       title: string;
       updated_at: string;
@@ -243,7 +266,7 @@ export interface TrendingProduct {
       _in_progress: boolean;
       created_at: string;
       created_by: string;
-      description: string;
+      description?: string;
       tags: string[];
       title: string;
       updated_at: string;
@@ -348,10 +371,37 @@ export interface DetailedProduct {
     color: Array<{
       uid: string;
       _content_type_uid: string;
+      colorcode?: {
+        hsl: {
+          h: number;
+          s: number;
+          l: number;
+          a: number;
+        };
+        hex: string;
+        rgb: {
+          r: number;
+          g: number;
+          b: number;
+          a: number;
+        };
+        hsv: {
+          h: number;
+          s: number;
+          v: number;
+          a: number;
+        };
+        oldHue: number;
+        source: string;
+      };
+      title?: string;
+      description?: string;
     }>;
     size: Array<{
       uid: string;
       _content_type_uid: string;
+      title?: string;
+      description?: string;
     }>;
     inventory: number | null;
     price: number;
