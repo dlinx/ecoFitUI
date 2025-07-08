@@ -376,6 +376,9 @@ export interface DetailedProduct {
   };
 }
 
+// Alias for ProductDetails
+export type ProductDetails = DetailedProduct;
+
 export interface TrendingSection {
   trending_1: {
     trending_items: TrendingProduct[];

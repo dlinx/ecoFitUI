@@ -46,22 +46,12 @@ const SearchPage: React.FC = () => {
     gender: filters.gender.length > 0 ? filters.gender[0] : undefined,
     class: filters.class.length > 0 ? filters.class[0] : undefined,
     category: filters.category.length > 0 ? filters.category[0] : undefined,
-    sortBy,
+    sortBy: sortBy as 'newest' | 'price' | 'rating' | 'popular',
   });
 
   const handleSortChange = (event: any) => {
     setSortBy(event.target.value);
   };
-
-  const filteredProducts = products.filter(product => {
-    const matchesGender = filters.gender.length === 0 || filters.gender.includes(product.gender);
-    const matchesClass = filters.class.length === 0 || filters.class.includes(product.class);
-    const matchesCategory = filters.category.length === 0 || filters.category.includes(product.category);
-    const matchesPrice = product.price >= filters.priceRange[0] && product.price <= filters.priceRange[1];
-    const matchesStock = !filters.inStock || product.inStock;
-
-    return matchesGender && matchesClass && matchesCategory && matchesPrice && matchesStock;
-  });
 
   const pageTitle = searchQuery 
     ? `Search Results for "${searchQuery}"` 
@@ -88,7 +78,7 @@ const SearchPage: React.FC = () => {
             {pageTitle}
           </Typography>
           <Typography variant="body1" color="text.secondary">
-            {filteredProducts.length} products found
+            {products.length} products found
           </Typography>
         </Box>
 
@@ -131,7 +121,7 @@ const SearchPage: React.FC = () => {
               </FormControl>
             </Box>
 
-            <ProductGrid products={filteredProducts} isLoading={isLoading} error={error} />
+            <ProductGrid products={products} isLoading={isLoading} error={error} />
           </Grid>
         </Grid>
 

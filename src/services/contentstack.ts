@@ -1,5 +1,5 @@
 import { Stack } from 'contentstack';
-import { ContentstackConfig, Product, Category, Banner, HomePage, DetailedProduct } from '../types';
+import { ContentstackConfig, Product, Category, Banner, HomePage, DetailedProduct, ProductDetails } from '../types';
 
 class ContentstackService {
   private stack: Stack | null;
@@ -24,14 +24,14 @@ class ContentstackService {
     }
   }
 
-  async getProducts(params: any = {}): Promise<Product[]> {
+  async getProducts(params: any = {}): Promise<ProductDetails[]> {
     if (!this.stack) {
       throw new Error('Contentstack is not initialized');
     }
 
     try {
-      const query = this.stack.ContentType('products').Query();
-
+      const query = this.stack.ContentType('product').Query();
+      query.includeReference(['images', 'sku', 'category', 'class', 'gender', 'tags', 'description', 'sku.color', 'sku.size', 'sub_category', 'sku.sku_code']);
       if (params.gender) {
         query.where('gender', params.gender);
       }
@@ -48,11 +48,11 @@ class ContentstackService {
         query.skip(params.skip);
       }
 
-      const result = await query.find();
+      const result = await query.toJSON().find();
       return result[0] || [];
     } catch (error) {
       console.error('Error fetching products from Contentstack:', error);
-      return this.getMockProducts();
+      throw error;
     }
   }
 
@@ -63,7 +63,7 @@ class ContentstackService {
 
     try {
       const query = this.stack.ContentType('product').Entry(id);
-      query.includeReference(['images', 'sku', 'category', 'class', 'gender', 'tags', 'description', 'sku.color', 'sku.size','sub_category']);
+      query.includeReference(['images', 'sku', 'category', 'class', 'gender', 'tags', 'description', 'sku.color', 'sku.size', 'sub_category']);
 
       const result = await query.toJSON().fetch();
       return result || null;
