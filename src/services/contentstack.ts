@@ -108,10 +108,14 @@ class ContentstackService {
     try {
       const query = this.stack!.ContentType('home_page').Query();
       query.limit(1);
-      query.includeReference('app_navigation');
-      query.includeReference('entry_banner.banner');
-      query.includeReference('trending.trending_1.trending_items');
-      query.includeReference('wishlist.wishlist_items.wishlist_items');
+      query.includeReference(['app_navigation',
+        'entry_banner.banner',
+        'trending.trending_1.trending_items',
+        'wishlist.wishlist_items.wishlist_items',
+        'trending.trending_1.trending_items.sku',
+        'trending.trending_1.trending_items.sku.color',
+        'trending.trending_1.trending_items.sku.size',
+      ]);
       const result = await query.toJSON().findOne();
       return result || null;
     } catch (error) {
@@ -220,10 +224,6 @@ class ContentstackService {
         updatedAt: '2024-01-20T00:00:00Z',
       },
     ];
-  }
-
-  private getMockProduct(id: string): Product | null {
-    return this.getMockProducts().find(p => p.id === id) || null;
   }
 
   private getMockCategories(): Category[] {

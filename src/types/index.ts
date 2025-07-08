@@ -381,7 +381,7 @@ export type ProductDetails = DetailedProduct;
 
 export interface TrendingSection {
   trending_1: {
-    trending_items: TrendingProduct[];
+    trending_items: ProductDetails[];
     _metadata: {
       uid: string;
     };

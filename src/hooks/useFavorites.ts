@@ -1,10 +1,10 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Product } from '../types';
+import { ProductDetails } from '../types';
 
 const FAVORITES_KEY = 'ecofit-favorites';
 
 // Get favorites from localStorage
-const getFavoritesFromStorage = (): Product[] => {
+const getFavoritesFromStorage = (): ProductDetails[] => {
   try {
     const stored = localStorage.getItem(FAVORITES_KEY);
     return stored ? JSON.parse(stored) : [];
@@ -15,7 +15,7 @@ const getFavoritesFromStorage = (): Product[] => {
 };
 
 // Save favorites to localStorage
-const saveFavoritesToStorage = (favorites: Product[]): void => {
+const saveFavoritesToStorage = (favorites: ProductDetails[]): void => {
   try {
     localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites));
   } catch (error) {
@@ -36,44 +36,44 @@ export const useFavorites = () => {
 
   // Mutation to add to favorites
   const addToFavoritesMutation = useMutation({
-    mutationFn: async (product: Product): Promise<Product[]> => {
+    mutationFn: async (product: ProductDetails): Promise<ProductDetails[]> => {
       const currentFavorites = getFavoritesFromStorage();
-      const isAlreadyFavorite = currentFavorites.some(fav => fav.id === product.id);
-      
+      const isAlreadyFavorite = currentFavorites.some(fav => fav.uid === product.uid);
+
       if (isAlreadyFavorite) {
         throw new Error('Product is already in favorites');
       }
-      
+
       const newFavorites = [...currentFavorites, product];
       saveFavoritesToStorage(newFavorites);
       return newFavorites;
     },
-    onSuccess: (newFavorites: Product[]) => {
+    onSuccess: (newFavorites: ProductDetails[]) => {
       queryClient.setQueryData(['favorites'], newFavorites);
     },
   });
 
   // Mutation to remove from favorites
   const removeFromFavoritesMutation = useMutation({
-    mutationFn: async (productId: string): Promise<Product[]> => {
+    mutationFn: async (productId: string): Promise<ProductDetails[]> => {
       const currentFavorites = getFavoritesFromStorage();
-      const newFavorites = currentFavorites.filter(fav => fav.id !== productId);
+      const newFavorites = currentFavorites.filter(fav => fav.uid !== productId);
       saveFavoritesToStorage(newFavorites);
       return newFavorites;
     },
-    onSuccess: (newFavorites: Product[]) => {
+    onSuccess: (newFavorites: ProductDetails[]) => {
       queryClient.setQueryData(['favorites'], newFavorites);
     },
   });
 
   // Mutation to toggle favorite status
   const toggleFavoriteMutation = useMutation({
-    mutationFn: async (product: Product): Promise<{ newFavorites: Product[]; isFavorite: boolean }> => {
+    mutationFn: async (product: ProductDetails): Promise<{ newFavorites: ProductDetails[]; isFavorite: boolean }> => {
       const currentFavorites = getFavoritesFromStorage();
-      const isFavorite = currentFavorites.some(fav => fav.id === product.id);
-      
+      const isFavorite = currentFavorites.some(fav => fav.uid === product.uid);
+
       if (isFavorite) {
-        const newFavorites = currentFavorites.filter(fav => fav.id !== product.id);
+        const newFavorites = currentFavorites.filter(fav => fav.uid !== product.uid);
         saveFavoritesToStorage(newFavorites);
         return { newFavorites, isFavorite: false };
       } else {
@@ -82,14 +82,14 @@ export const useFavorites = () => {
         return { newFavorites, isFavorite: true };
       }
     },
-    onSuccess: (data: { newFavorites: Product[]; isFavorite: boolean }) => {
+    onSuccess: (data: { newFavorites: ProductDetails[]; isFavorite: boolean }) => {
       queryClient.setQueryData(['favorites'], data.newFavorites);
     },
   });
 
   // Helper function to check if a product is favorite
   const isFavorite = (productId: string): boolean => {
-    return favorites.some(fav => fav.id === productId);
+    return favorites.some(fav => fav.uid === productId);
   };
 
   return {

@@ -5,7 +5,6 @@ import HeroBanner from '@components/home/HeroBanner';
 import ProductSlider from '@components/product/ProductSlider';
 import { useHomePage } from '@hooks/useContentstack';
 import { useFavorites } from '@hooks/useFavorites';
-import { transformTrendingProductToProduct } from '../types';
 
 const HomePage: React.FC = () => {
   const { data: homePage, isLoading: homePageLoading, error: homePageError } = useHomePage();
@@ -13,11 +12,6 @@ const HomePage: React.FC = () => {
 
   // Get the first banner from entry_banner array
   const heroBanner = homePage?.entry_banner?.[0] || null;
-
-  // Transform trending products to Product format
-  const products = homePage?.trending?.flatMap(section => 
-    section.trending_1.trending_items.map(transformTrendingProductToProduct)
-  ) || [];
 
   return (
     <>
@@ -37,9 +31,9 @@ const HomePage: React.FC = () => {
         {heroBanner && !homePageLoading && (
           <HeroBanner banner={heroBanner} />
         )}
-        
+
         <ProductSlider
-          products={products}
+          products={homePage?.trending?.flatMap(section => section.trending_1.trending_items) || []}
           isLoading={homePageLoading}
           error={homePageError}
           title="Trending Products"
@@ -49,7 +43,7 @@ const HomePage: React.FC = () => {
           showCategory={true}
           showNavigation={true}
         />
-        
+
         {favorites.length > 0 && (
           <ProductSlider
             products={favorites}
