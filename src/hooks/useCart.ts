@@ -5,7 +5,10 @@ const CART_KEY = 'ecofit-cart';
 
 export interface CartItem {
   productId: string;
+  skuCode: string;
   quantity: number;
+  size?: string;
+  color?: string;
   product: Product;
 }
 
@@ -64,9 +67,21 @@ export const useCart = () => {
 
   // Mutation to add to cart
   const addToCartMutation = useMutation({
-    mutationFn: async ({ product, quantity = 1 }: { product: Product; quantity?: number }): Promise<Cart> => {
+    mutationFn: async ({ 
+      product, 
+      skuCode, 
+      quantity = 1, 
+      size, 
+      color 
+    }: { 
+      product: Product; 
+      skuCode: string; 
+      quantity?: number; 
+      size?: string; 
+      color?: string; 
+    }): Promise<Cart> => {
       const currentCart = getCartFromStorage();
-      const existingItemIndex = currentCart.items.findIndex(item => item.productId === product.id);
+      const existingItemIndex = currentCart.items.findIndex(item => item.skuCode === skuCode);
       
       let newItems: CartItem[];
       if (existingItemIndex >= 0) {
@@ -78,7 +93,14 @@ export const useCart = () => {
         };
       } else {
         // Add new item
-        newItems = [...currentCart.items, { productId: product.id, quantity, product }];
+        newItems = [...currentCart.items, { 
+          productId: product.id, 
+          skuCode, 
+          quantity, 
+          size, 
+          color, 
+          product 
+        }];
       }
       
       const { total, itemCount } = calculateCartTotals(newItems);
@@ -94,9 +116,9 @@ export const useCart = () => {
 
   // Mutation to remove from cart
   const removeFromCartMutation = useMutation({
-    mutationFn: async (productId: string): Promise<Cart> => {
+    mutationFn: async (skuCode: string): Promise<Cart> => {
       const currentCart = getCartFromStorage();
-      const newItems = currentCart.items.filter(item => item.productId !== productId);
+      const newItems = currentCart.items.filter(item => item.skuCode !== skuCode);
       const { total, itemCount } = calculateCartTotals(newItems);
       const newCart: Cart = { items: newItems, total, itemCount };
       
@@ -110,17 +132,17 @@ export const useCart = () => {
 
   // Mutation to update quantity
   const updateQuantityMutation = useMutation({
-    mutationFn: async ({ productId, quantity }: { productId: string; quantity: number }): Promise<Cart> => {
+    mutationFn: async ({ skuCode, quantity }: { skuCode: string; quantity: number }): Promise<Cart> => {
       const currentCart = getCartFromStorage();
       let newItems: CartItem[];
       
       if (quantity <= 0) {
         // Remove item if quantity is 0 or negative
-        newItems = currentCart.items.filter(item => item.productId !== productId);
+        newItems = currentCart.items.filter(item => item.skuCode !== skuCode);
       } else {
         // Update quantity
         newItems = currentCart.items.map(item => 
-          item.productId === productId ? { ...item, quantity } : item
+          item.skuCode === skuCode ? { ...item, quantity } : item
         );
       }
       
@@ -152,16 +174,29 @@ export const useCart = () => {
     return cart.items.some(item => item.productId === productId);
   };
 
+  // Helper function to check if a specific SKU is in cart
+  const isSkuInCart = (skuCode: string): boolean => {
+    return cart.items.some(item => item.skuCode === skuCode);
+  };
+
   // Helper function to get cart item quantity
   const getCartItemQuantity = (productId: string): number => {
     const item = cart.items.find(item => item.productId === productId);
     return item ? item.quantity : 0;
   };
 
+  // Helper function to get cart item quantity by SKU
+  const getCartItemQuantityBySku = (skuCode: string): number => {
+    const item = cart.items.find(item => item.skuCode === skuCode);
+    return item ? item.quantity : 0;
+  };
+
   return {
     cart,
     isInCart,
+    isSkuInCart,
     getCartItemQuantity,
+    getCartItemQuantityBySku,
     addToCart: addToCartMutation.mutate,
     removeFromCart: removeFromCartMutation.mutate,
     updateQuantity: updateQuantityMutation.mutate,

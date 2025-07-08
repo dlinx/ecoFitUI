@@ -201,7 +201,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   showRating = true
 }) => {
   const { isFavorite, toggleFavorite, isLoading: isFavoriteLoading } = useFavorites();
-  const { isInCart, addToCart, isLoading: isCartLoading } = useCart();
+  const { isSkuInCart, addToCart, isLoading: isCartLoading } = useCart();
 
   // State for color and size selection
   const [selectedColor, setSelectedColor] = useState<string>('');
@@ -265,24 +265,16 @@ const ProductCard: React.FC<ProductCardProps> = ({
   const finalDiscountedPrice = finalPrice * (1 - finalDiscount / 100);
   const finalInStock = selectedSku?.inventory !== null && selectedSku?.inventory !== undefined && selectedSku?.inventory > 0;
 
-  // Transform ProductDetails to Product for cart and favorites compatibility
+  // Transform ProductDetails to Product for cart compatibility
   const transformToProduct = () => ({
     id: product.uid,
     title: product.title,
     description: product.description.details,
     price: Math.round(finalDiscountedPrice),
     originalPrice: finalOriginalPrice ? Math.round(finalOriginalPrice) : undefined,
-    images: product.images.map(img => img.permanent_url),
-    category: product.category[0]?.uid || 'unknown',
-    gender: (product.gender[0]?.uid === 'blt8fe78d2d00310008' ? 'men' :
-      product.gender[0]?.uid === 'blt947a3e4c7341f648' ? 'women' : 'unisex') as 'men' | 'women' | 'unisex',
-    class: product.class[0]?.uid || 'unknown',
-    tags: product.tags,
+    images: product.images.map(img => img.url),
     inStock: finalInStock,
-    rating: 4.5, // Default rating since it's not in ProductDetails
-    reviewCount: Math.floor(Math.random() * 100) + 10, // Mock review count
-    createdAt: product.created_at,
-    updatedAt: product.updated_at,
+    inventory: selectedSku?.inventory || 0,
   });
 
   const handleToggleFavorite = (e: React.MouseEvent) => {
@@ -294,7 +286,18 @@ const ProductCard: React.FC<ProductCardProps> = ({
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    addToCart({ product: transformToProduct() });
+
+    if (selectedSku) {
+      const selectedColorObj = selectedSku.color?.find(c => c.uid === selectedColor);
+      const selectedSizeObj = selectedSku.size?.find(s => s.uid === selectedSize);
+
+      addToCart({
+        product: transformToProduct(),
+        skuCode: selectedSku.sku_code,
+        size: selectedSizeObj?.title,
+        color: selectedColorObj?.title
+      });
+    }
   };
 
   return (
@@ -329,14 +332,14 @@ const ProductCard: React.FC<ProductCardProps> = ({
           {product.title}
         </ProductTitle>
 
-        {showRating && (
+        {/* {showRating && (
           <RatingContainer>
             <Rating value={4.5} precision={0.1} size="small" readOnly />
             <ReviewCount variant="body2">
               ({Math.floor(Math.random() * 100) + 10})
             </ReviewCount>
           </RatingContainer>
-        )}
+        )} */}
 
         <ProductDescription variant="body2">
           {product.description.details}
@@ -438,7 +441,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
         </PriceContainer>
 
         <ActionContainer>
-          {isInCart(product.uid) ? (
+          {selectedSku && isSkuInCart(selectedSku.sku_code) ? (
             <StyledButton
               component={Link}
               to="/cart"

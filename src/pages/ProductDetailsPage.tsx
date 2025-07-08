@@ -30,7 +30,6 @@ import {
 import Carousel from 'react-material-ui-carousel';
 import { useProduct } from '@hooks/useContentstack';
 import { useCart } from '@hooks/useCart';
-import { getColorValue } from '@utils/colorUtils';
 
 const ProductDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -38,7 +37,7 @@ const ProductDetailsPage: React.FC = () => {
   const { data: product, isLoading, error } = useProduct(id!);
   const [selectedColor, setSelectedColor] = useState<string>('');
   const [selectedSize, setSelectedSize] = useState<string>('');
-  const { addToCart } = useCart();
+  const { addToCart, isSkuInCart } = useCart();
 
   // Get distinct colors and sizes from SKU array
   const { distinctColors, distinctSizes } = useMemo(() => {
@@ -108,12 +107,25 @@ const ProductDetailsPage: React.FC = () => {
 
   const handleAddToCart = () => {
     if (selectedSku) {
-      // addToCart({
-      //   product,
-      //   quantity: 1,
-      //   color: selectedColor,
-      //   size: selectedSize,
-      // });
+      const selectedColorObj = selectedSku.color?.find(c => c.uid === selectedColor);
+      const selectedSizeObj = selectedSku.size?.find(s => s.uid === selectedSize);
+      
+      addToCart({
+        product: {
+          id: product.uid,
+          title: product.title,
+          description: product.description.details,
+          price: Math.round(discountedPrice),
+          originalPrice: selectedSku.price,
+          images: product.images.map(img => img.permanent_url),
+          inStock: selectedSku.inventory !== null && selectedSku.inventory !== undefined && selectedSku.inventory > 0,
+          inventory: selectedSku.inventory || 0
+        },
+        skuCode: selectedSku.sku_code,
+        size: selectedSizeObj?.title,
+        color: selectedColorObj?.title,
+        quantity: 1
+      });
     }
   };
 
@@ -381,18 +393,20 @@ const ProductDetailsPage: React.FC = () => {
 
             <Box sx={{ display: 'flex', gap: 2, mb: 4 }}>
               <Button
-                variant="contained"
+                variant={selectedSku && isSkuInCart(selectedSku.sku_code) ? "outlined" : "contained"}
                 size="large"
                 startIcon={<ShoppingCart />}
-                onClick={handleAddToCart}
+                onClick={selectedSku && isSkuInCart(selectedSku.sku_code) ? () => window.location.href = '/cart' : handleAddToCart}
                 disabled={!selectedSku?.inventory || !selectedColor || !selectedSize}
                 sx={{ flex: 1 }}
               >
                 {!selectedColor || !selectedSize
                   ? 'Select Color & Size'
-                  : selectedSku?.inventory
-                    ? 'Add to Cart'
-                    : 'Out of Stock'
+                  : selectedSku && isSkuInCart(selectedSku.sku_code)
+                    ? 'View Cart'
+                    : selectedSku?.inventory
+                      ? 'Add to Cart'
+                      : 'Out of Stock'
                 }
               </Button>
 

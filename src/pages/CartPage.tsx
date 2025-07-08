@@ -27,12 +27,12 @@ const CartPage: React.FC = () => {
   const tax = subtotal * 0.18; // 18% GST
   const total = subtotal + shipping + tax;
 
-  const handleQuantityChange = (productId: string, newQuantity: number) => {
-    updateQuantity({ productId, quantity: newQuantity });
+  const handleQuantityChange = (skuCode: string, newQuantity: number) => {
+    updateQuantity({ skuCode, quantity: newQuantity });
   };
 
-  const handleRemoveItem = (productId: string) => {
-    removeFromCart(productId);
+  const handleRemoveItem = (skuCode: string) => {
+    removeFromCart(skuCode);
   };
 
   const handleClearCart = () => {
@@ -123,11 +123,11 @@ const CartPage: React.FC = () => {
               {/* Card-style cart items */}
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                 {cartItems.map((item) => (
-                  <Paper key={item.productId} elevation={1} sx={{ p: 2, display: 'flex', alignItems: 'flex-start', position: 'relative' }}>
+                  <Paper key={item.skuCode} elevation={1} sx={{ p: 2, display: 'flex', alignItems: 'flex-start', position: 'relative' }}>
                     {/* Remove button */}
                     <IconButton
                       color="inherit"
-                      onClick={() => handleRemoveItem(item.productId)}
+                      onClick={() => handleRemoveItem(item.skuCode)}
                       sx={{ position: 'absolute', top: 12, right: 12 }}
                       aria-label="Remove item"
                     >
@@ -139,18 +139,17 @@ const CartPage: React.FC = () => {
                       component="img"
                       src={item.product.images[0]}
                       alt={item.product.title}
-                      sx={{ width: 220, height: 260, objectFit: 'cover', borderRadius: 2, mr: 4 }}
+                      sx={{ width: 220, height: 220, objectFit: 'cover', borderRadius: 1, mr: 4 }}
                     />
 
                     {/* Product Details */}
                     <Box sx={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 1 }}>
-                      <Typography 
+                      <Typography
                         component={Link}
                         to={`/product/${item.product.id}`}
-                        variant="h5" 
-                        sx={{ 
-                          fontWeight: 700, 
-                          mb: 1, 
+                        variant="h5"
+                        sx={{
+                          fontWeight: 700,
                           fontFamily: 'monospace',
                           textDecoration: 'none',
                           color: 'text.primary',
@@ -162,17 +161,41 @@ const CartPage: React.FC = () => {
                         {item.product.title}
                       </Typography>
                       {item.product.description && (
-                        <Typography variant="body1" color="text.secondary" sx={{ mb: 1, fontWeight: 500 }}>
+                        <Typography variant="body1" color="text.secondary" sx={{ fontWeight: 500 }}>
                           {item.product.description}
                         </Typography>
                       )}
-                      <Typography variant="h6" sx={{ fontWeight: 700, mt: 1 }}>
+                      <Typography variant="h6" sx={{ fontWeight: 700 }}>
                         Rs. {item.product.price.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                       </Typography>
 
+                      {/* SKU Information */}
+                      {item.skuCode && (
+                        <Box>
+                          {(item.color || item.size) && (
+                            <Box sx={{ display: 'flex', gap: 2 }}>
+                              {item.color && (
+                                <Chip
+                                  label={`Color: ${item.color}`}
+                                  size="small"
+                                  variant="outlined"
+                                />
+                              )}
+                              {item.size && (
+                                <Chip
+                                  label={`Size: ${item.size}`}
+                                  size="small"
+                                  variant="outlined"
+                                />
+                              )}
+                            </Box>
+                          )}
+                        </Box>
+                      )}
+
                       {/* Quantity selector */}
-                      <Box sx={{ mt: 3 }}>
-                        <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1 }}>
+                      <Box sx={{ mt: 1 }}>
+                        <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
                           QUANTITY
                         </Typography>
                         <Box sx={{ width: 120 }}>
@@ -184,13 +207,13 @@ const CartPage: React.FC = () => {
                             onChange={(e) => {
                               const value = parseInt(e.target.value);
                               if (!isNaN(value) && value > 0) {
-                                handleQuantityChange(item.productId, value);
+                                handleQuantityChange(item.skuCode, value);
                               }
                             }}
                             sx={{ width: '100%' }}
-                            inputProps={{ style: { fontSize: 22, fontWeight: 500, textAlign: 'center' } }}
+                            inputProps={{ style: { fontWeight: 500, textAlign: 'center' } }}
                           >
-                            {[...Array(10)].map((_, i) => (
+                            {[...Array(item.product.inventory)].slice(0, 10).map((_, i) => (
                               <option key={i + 1} value={i + 1}>{i + 1}</option>
                             ))}
                           </TextField>

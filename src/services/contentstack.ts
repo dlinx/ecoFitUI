@@ -1,5 +1,5 @@
 import { Stack } from 'contentstack';
-import { ContentstackConfig, Product, Category, Banner, HomePage, DetailedProduct, ProductDetails } from '../types';
+import { ContentstackConfig, Category, Banner, HomePage, DetailedProduct, ProductDetails } from '../types';
 
 class ContentstackService {
   private stack: Stack | null;
@@ -84,13 +84,13 @@ class ContentstackService {
       return result[0] || [];
     } catch (error) {
       console.error('Error fetching categories from Contentstack:', error);
-      return this.getMockCategories();
+      throw error;
     }
   }
 
   async getBanners(): Promise<Banner[]> {
     if (!this.stack) {
-      return this.getMockBanners();
+      throw new Error('Contentstack is not initialized');
     }
 
     try {
@@ -100,7 +100,7 @@ class ContentstackService {
       return result[0] || [];
     } catch (error) {
       console.error('Error fetching banners from Contentstack:', error);
-      return this.getMockBanners();
+      throw error;
     }
   }
 
@@ -115,6 +115,10 @@ class ContentstackService {
         'trending.trending_1.trending_items.sku',
         'trending.trending_1.trending_items.sku.color',
         'trending.trending_1.trending_items.sku.size',
+        'trending.trending_1.trending_items.gender',
+        'trending.trending_1.trending_items.class',
+        'trending.trending_1.trending_items.category',
+        'trending.trending_1.trending_items.sub_category'
       ]);
       const result = await query.toJSON().findOne();
       return result || null;
@@ -124,16 +128,13 @@ class ContentstackService {
     }
   }
 
-  async searchProducts(searchQuery: string, filters: any = {}): Promise<Product[]> {
+  async searchProducts(searchQuery: string, filters: any = {}): Promise<DetailedProduct[]> {
     if (!this.stack) {
-      return this.getMockProducts().filter(product =>
-        product.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        product.description.toLowerCase().includes(searchQuery.toLowerCase())
-      );
+      throw new Error('Contentstack is not initialized');
     }
 
     try {
-      const query = this.stack.ContentType('products').Query();
+      const query = this.stack.ContentType('product').Query();
 
       if (searchQuery) {
         query.regex('title', searchQuery, 'i');
@@ -149,136 +150,8 @@ class ContentstackService {
       return result[0] || [];
     } catch (error) {
       console.error('Error searching products in Contentstack:', error);
-      return this.getMockProducts();
+      throw error;
     }
-  }
-
-  private getMockProducts(): Product[] {
-    return [
-      {
-        id: '1',
-        title: 'Eco-Friendly Yoga Mat',
-        description: 'Premium natural rubber yoga mat with excellent grip and cushioning for all your practice needs.',
-        price: 79.99,
-        originalPrice: 99.99,
-        images: ['https://images.pexels.com/photos/3822906/pexels-photo-3822906.jpeg?auto=compress&cs=tinysrgb&w=800'],
-        category: 'yoga',
-        gender: 'unisex',
-        class: 'fitness',
-        tags: ['eco-friendly', 'yoga', 'exercise'],
-        inStock: true,
-        rating: 4.8,
-        reviewCount: 127,
-        createdAt: '2024-01-15T00:00:00Z',
-        updatedAt: '2024-01-15T00:00:00Z',
-      },
-      {
-        id: '2',
-        title: 'Organic Cotton Workout Set',
-        description: 'Comfortable and breathable organic cotton workout set perfect for any fitness activity.',
-        price: 89.99,
-        originalPrice: 120.00,
-        images: ['https://images.pexels.com/photos/6456206/pexels-photo-6456206.jpeg?auto=compress&cs=tinysrgb&w=800'],
-        category: 'activewear',
-        gender: 'women',
-        class: 'apparel',
-        tags: ['organic', 'cotton', 'workout'],
-        inStock: true,
-        rating: 4.6,
-        reviewCount: 89,
-        createdAt: '2024-01-10T00:00:00Z',
-        updatedAt: '2024-01-10T00:00:00Z',
-      },
-      {
-        id: '3',
-        title: 'Sustainable Running Shoes',
-        description: 'High-performance running shoes made from recycled materials with superior comfort and durability.',
-        price: 149.99,
-        originalPrice: 199.99,
-        images: ['https://images.pexels.com/photos/2529148/pexels-photo-2529148.jpeg?auto=compress&cs=tinysrgb&w=800'],
-        category: 'footwear',
-        gender: 'men',
-        class: 'shoes',
-        tags: ['sustainable', 'running', 'recycled'],
-        inStock: true,
-        rating: 4.9,
-        reviewCount: 234,
-        createdAt: '2024-01-05T00:00:00Z',
-        updatedAt: '2024-01-05T00:00:00Z',
-      },
-      {
-        id: '4',
-        title: 'Bamboo Water Bottle',
-        description: 'Eco-friendly bamboo water bottle with stainless steel interior, keeps drinks cold for 24 hours.',
-        price: 34.99,
-        originalPrice: 45.00,
-        images: ['https://images.pexels.com/photos/3735218/pexels-photo-3735218.jpeg?auto=compress&cs=tinysrgb&w=800'],
-        category: 'accessories',
-        gender: 'unisex',
-        class: 'hydration',
-        tags: ['bamboo', 'eco-friendly', 'hydration'],
-        inStock: true,
-        rating: 4.7,
-        reviewCount: 156,
-        createdAt: '2024-01-20T00:00:00Z',
-        updatedAt: '2024-01-20T00:00:00Z',
-      },
-    ];
-  }
-
-  private getMockCategories(): Category[] {
-    return [
-      {
-        id: '1',
-        name: 'Fitness Equipment',
-        slug: 'fitness-equipment',
-        description: 'High-quality fitness equipment for home and gym use',
-        image: 'https://images.pexels.com/photos/3822906/pexels-photo-3822906.jpeg?auto=compress&cs=tinysrgb&w=400',
-        gender: 'unisex',
-        class: 'fitness',
-      },
-      {
-        id: '2',
-        name: 'Activewear',
-        slug: 'activewear',
-        description: 'Comfortable and sustainable activewear for all activities',
-        image: 'https://images.pexels.com/photos/6456206/pexels-photo-6456206.jpeg?auto=compress&cs=tinysrgb&w=400',
-        gender: 'unisex',
-        class: 'apparel',
-      },
-      {
-        id: '3',
-        name: 'Footwear',
-        slug: 'footwear',
-        description: 'Sustainable and high-performance footwear',
-        image: 'https://images.pexels.com/photos/2529148/pexels-photo-2529148.jpeg?auto=compress&cs=tinysrgb&w=400',
-        gender: 'unisex',
-        class: 'shoes',
-      },
-    ];
-  }
-
-  private getMockBanners(): Banner[] {
-    return [
-      {
-        id: '1',
-        title: 'New Eco-Friendly Collection',
-        subtitle: 'Discover our latest sustainable fitness gear',
-        image: 'https://images.pexels.com/photos/3822906/pexels-photo-3822906.jpeg?auto=compress&cs=tinysrgb&w=1200',
-        ctaText: 'Shop Now',
-        ctaLink: '/collection/eco-friendly',
-        isActive: true,
-      },
-      {
-        id: '2',
-        title: 'Summer Fitness Sale',
-        subtitle: 'Up to 50% off on selected items',
-        image: 'https://images.pexels.com/photos/6456206/pexels-photo-6456206.jpeg?auto=compress&cs=tinysrgb&w=1200',
-        ctaText: 'View Deals',
-        ctaLink: '/sale',
-        isActive: true,
-      },
-    ];
   }
 }
 

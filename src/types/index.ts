@@ -5,15 +5,8 @@ export interface Product {
   price: number;
   originalPrice?: number;
   images: string[];
-  category: string;
-  gender: 'men' | 'women' | 'unisex';
-  class: string;
-  tags: string[];
   inStock: boolean;
-  rating: number;
-  reviewCount: number;
-  createdAt: string;
-  updatedAt: string;
+  inventory: number;
 }
 
 export interface Category {
@@ -37,9 +30,11 @@ export interface Filter {
 
 export interface CartItem {
   productId: string;
+  skuCode: string;
   quantity: number;
   size?: string;
   color?: string;
+  product: Product;
 }
 
 export interface Cart {
@@ -325,12 +320,46 @@ export interface DetailedProduct {
   ACL: Record<string, any>;
   _in_progress: boolean;
   category: Array<{
-    uid: string;
     _content_type_uid: string;
+    uid: string;
+    _version: number;
+    locale: string;
+    ACL: Record<string, any>;
+    _in_progress: boolean;
+    created_at: string;
+    created_by: string;
+    description: string;
+    tags: string[];
+    title: string;
+    updated_at: string;
+    updated_by: string;
+    publish_details: {
+      time: string;
+      user: string;
+      environment: string;
+      locale: string;
+    };
   }>;
   class: Array<{
-    uid: string;
     _content_type_uid: string;
+    uid: string;
+    _version: number;
+    locale: string;
+    ACL: Record<string, any>;
+    _in_progress: boolean;
+    created_at: string;
+    created_by: string;
+    description: string;
+    tags: string[];
+    title: string;
+    updated_at: string;
+    updated_by: string;
+    publish_details: {
+      time: string;
+      user: string;
+      environment: string;
+      locale: string;
+    };
   }>;
   created_at: string;
   created_by: string;
@@ -339,8 +368,25 @@ export interface DetailedProduct {
     material_and_care: string;
   };
   gender: Array<{
-    uid: string;
     _content_type_uid: string;
+    uid: string;
+    _version: number;
+    locale: string;
+    ACL: Record<string, any>;
+    _in_progress: boolean;
+    created_at: string;
+    created_by: string;
+    description: string;
+    tags: string[];
+    title: string;
+    updated_at: string;
+    updated_by: string;
+    publish_details: {
+      time: string;
+      user: string;
+      environment: string;
+      locale: string;
+    };
   }>;
   images: Array<{
     uid: string;
@@ -411,8 +457,25 @@ export interface DetailedProduct {
     };
   }>;
   sub_category: Array<{
-    uid: string;
     _content_type_uid: string;
+    uid: string;
+    _version: number;
+    locale: string;
+    ACL: Record<string, any>;
+    _in_progress: boolean;
+    created_at: string;
+    created_by: string;
+    description: string;
+    tags: string[];
+    title: string;
+    updated_at: string;
+    updated_by: string;
+    publish_details: {
+      time: string;
+      user: string;
+      environment: string;
+      locale: string;
+    };
   }>;
   tags: string[];
   title: string;
@@ -480,29 +543,3 @@ export interface SearchParams {
   page?: number;
   limit?: number;
 }
-
-// Utility function to transform TrendingProduct to Product
-export const transformTrendingProductToProduct = (trendingProduct: TrendingProduct): Product => {
-  const firstSku = trendingProduct.sku[0];
-  const originalPrice = firstSku.price;
-  const discountedPrice = firstSku.price * (1 - firstSku.discount / 100);
-  
-  return {
-    id: trendingProduct.uid,
-    title: trendingProduct.title,
-    description: trendingProduct.description.details || trendingProduct.description.material_and_care,
-    price: Math.round(discountedPrice),
-    originalPrice: firstSku.discount > 0 ? originalPrice : undefined,
-    images: trendingProduct.images.map(img => img.url),
-    category: trendingProduct.category[0]?.uid || 'unknown',
-    gender: trendingProduct.gender[0]?.uid === 'blt8fe78d2d00310008' ? 'men' : 
-            trendingProduct.gender[0]?.uid === 'blt947a3e4c7341f648' ? 'women' : 'unisex',
-    class: trendingProduct.class[0]?.uid || 'unknown',
-    tags: trendingProduct.tags,
-    inStock: firstSku.inventory !== null && firstSku.inventory > 0,
-    rating: 4.5, // Default rating since it's not in the trending data
-    reviewCount: Math.floor(Math.random() * 100) + 10, // Mock review count
-    createdAt: trendingProduct.created_at,
-    updatedAt: trendingProduct.updated_at,
-  };
-};
