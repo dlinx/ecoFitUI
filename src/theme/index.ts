@@ -454,13 +454,15 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           borderRadius: 20,
-          background: 'rgba(255, 255, 255, 0.8)',
+          background: 'rgba(26, 26, 26, 0.9)',
           backdropFilter: 'blur(10px)',
-          border: '1px solid rgba(0, 0, 0, 0.1)',
+          border: '1px solid rgba(26, 26, 26, 0.2)',
+          color: '#FFFFFF',
           '&:hover': {
-            background: 'rgba(255, 255, 255, 0.9)',
+            background: 'rgba(26, 26, 26, 1)',
             transform: 'translateY(-1px)',
             backdropFilter: 'blur(15px)',
+            color: '#FFFFFF',
           },
           '&.Mui-disabled': {
             background: 'rgba(0, 0, 0, 0.08)',

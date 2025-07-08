@@ -21,8 +21,8 @@ const Navigation: React.FC<NavigationProps> = ({ navigation }) => {
     setAnchorEl(prev => ({ ...prev, [groupId]: event.currentTarget }));
   };
 
-  const handleMenuClose = (groupId: string) => {
-    setAnchorEl(prev => ({ ...prev, [groupId]: null }));
+  const handleMenuClose = () => {
+    setAnchorEl({});
   };
 
   const renderCategoryChildren = (categoryChild: CategoryChild) => (
@@ -30,7 +30,7 @@ const Navigation: React.FC<NavigationProps> = ({ navigation }) => {
       <MenuItem
         component={Link}
         to={categoryChild.category_title.href}
-        onClick={() => handleMenuClose(categoryChild._metadata.uid)}
+        onClick={() => handleMenuClose()}
         sx={{
           px: 2,
           py: 1,
@@ -56,7 +56,7 @@ const Navigation: React.FC<NavigationProps> = ({ navigation }) => {
           key={index}
           component={Link}
           to={child.href}
-          onClick={() => handleMenuClose(categoryChild._metadata.uid)}
+          onClick={() => handleMenuClose()}
           sx={{
             px: 2,
             py: 1,
@@ -87,7 +87,7 @@ const Navigation: React.FC<NavigationProps> = ({ navigation }) => {
         onClick={(e) => {
           // If menu is open, close it
           if (anchorEl[group._metadata.uid]) {
-            handleMenuClose(group._metadata.uid);
+            handleMenuClose();
           }
         }}
         onMouseEnter={(e) => handleMenuOpen(e, group._metadata.uid)}
@@ -106,7 +106,7 @@ const Navigation: React.FC<NavigationProps> = ({ navigation }) => {
       <Menu
         anchorEl={anchorEl[group._metadata.uid]}
         open={Boolean(anchorEl[group._metadata.uid])}
-        onClose={() => handleMenuClose(group._metadata.uid)}
+        onClose={() => handleMenuClose()}
         anchorOrigin={{
           vertical: 'bottom',
           horizontal: 'left',
@@ -125,8 +125,14 @@ const Navigation: React.FC<NavigationProps> = ({ navigation }) => {
             minWidth: 400,
           },
         }}
+        MenuListProps={{
+          sx: {
+            display: 'flex',
+            gap: "10px"
+          },
+        }}
       >
-        {group.class_childrens.map((categoryChild) => 
+        {group.class_childrens.map((categoryChild) =>
           renderCategoryChildren(categoryChild)
         )}
       </Menu>
@@ -135,7 +141,7 @@ const Navigation: React.FC<NavigationProps> = ({ navigation }) => {
 
   return (
     <Box sx={{ display: 'flex', alignItems: 'center' }}>
-      {navigation.map((menu) => 
+      {navigation.map((menu) =>
         menu.navigation_group.map((group) => renderNavigationGroup(group))
       )}
     </Box>
