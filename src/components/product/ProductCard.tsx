@@ -38,7 +38,6 @@ const ImageContainer = styled(Box)({
 
 const ProductImage = styled(CardMedia)({
   height: '264px',
-  width: '264px',
   objectFit: 'fill',
 }) as typeof CardMedia;
 
@@ -197,8 +196,7 @@ interface ProductCardProps {
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({
-  product,
-  showRating = true
+  product
 }) => {
   const { isFavorite, toggleFavorite, isLoading: isFavoriteLoading } = useFavorites();
   const { isSkuInCart, addToCart, isLoading: isCartLoading } = useCart();
