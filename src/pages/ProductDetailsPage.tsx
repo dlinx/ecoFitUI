@@ -121,7 +121,7 @@ const ProductDetailsPage: React.FC = () => {
           description: product.description.details,
           price: Math.round(discountedPrice),
           originalPrice: selectedSku.price,
-          images: product.images.map(img => img.permanent_url),
+          images: product.images.map(img => img.url),
           inStock: selectedSku.inventory !== null && selectedSku.inventory !== undefined && selectedSku.inventory > 0,
           inventory: selectedSku.inventory || 0
         },

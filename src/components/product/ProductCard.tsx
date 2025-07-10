@@ -6,7 +6,6 @@ import {
   Card,
   CardMedia,
   CardContent,
-  Rating,
   Chip,
   IconButton,
   Button,
@@ -16,6 +15,7 @@ import {
   ToggleButtonGroup,
 } from '@mui/material';
 import { Favorite, FavoriteBorder, ShoppingCart } from '@mui/icons-material';
+import Carousel from 'react-material-ui-carousel';
 import { ProductDetails } from '../../types';
 import { useFavorites } from '../../hooks/useFavorites';
 import { useCart } from '../../hooks/useCart';
@@ -41,17 +41,50 @@ const ProductImage = styled(CardMedia)({
   objectFit: 'fill',
 }) as typeof CardMedia;
 
+const CarouselContainer = styled(Box)({
+  position: 'relative',
+  '& .MuiCarousel-root': {
+    height: '264px',
+  },
+  '& .MuiCarousel-indicators': {
+    bottom: 8,
+  },
+  '& .MuiCarousel-indicator': {
+    backgroundColor: 'rgba(255, 255, 255, 0.5)',
+    '&.Mui-active': {
+      backgroundColor: 'white',
+    },
+  },
+  '& .MuiCarousel-indicators2': {
+    bottom: 8,
+  },
+  '& .MuiCarousel-indicator2': {
+    backgroundColor: 'rgba(255, 255, 255, 0.5)',
+    '&.Mui-active': {
+      backgroundColor: 'white',
+    },
+  },
+});
+
+const CarouselImage = styled('img')({
+  width: '100%',
+  height: '264px',
+  objectFit: 'fill',
+});
+
 const DiscountChip = styled(Chip)(() => ({
   position: 'absolute',
   top: 8,
   left: 8,
   fontWeight: 'bold',
+  zIndex: 1,
 }));
 
 const FavoriteButton = styled(IconButton)(() => ({
   position: 'absolute',
   top: 8,
   right: 8,
+  zIndex: 1,
   backgroundColor: 'rgba(255, 255, 255, 0.9)',
   '&:hover': {
     backgroundColor: 'white',
@@ -78,17 +111,6 @@ const ProductTitle = styled(Typography)(({ theme }) => ({
     color: theme.palette.primary.main,
   },
 })) as typeof Typography;
-
-const RatingContainer = styled(Box)(({ theme }) => ({
-  display: 'flex',
-  alignItems: 'center',
-  marginBottom: theme.spacing(1),
-}));
-
-const ReviewCount = styled(Typography)(({ theme }) => ({
-  marginLeft: theme.spacing(1),
-  color: theme.palette.text.secondary,
-}));
 
 const ProductDescription = styled(Typography)(({ theme }) => ({
   marginBottom: theme.spacing(2),
@@ -301,11 +323,28 @@ const ProductCard: React.FC<ProductCardProps> = ({
   return (
     <ProductCardContainer>
       <ImageContainer>
-        <ProductImage
-          component="img"
-          image={product.images[0]?.url}
-          alt={product.title}
-        />
+        <CarouselContainer>
+          <Carousel
+            indicators={true}
+            autoPlay={false}
+            cycleNavigation={false}
+            animation="slide"
+            duration={500}
+            navButtonsProps={{
+              style: {
+                backgroundColor: 'rgba(255, 255, 255, 0.7)',
+              },
+            }}
+          >
+            {product.images.map((image, index) => (
+              <CarouselImage
+                key={index}
+                src={image.url}
+                alt={`${product.title} - ${index + 1}`}
+              />
+            ))}
+          </Carousel>
+        </CarouselContainer>
         {finalDiscount > 0 && (
           <DiscountChip
             label={`${Math.round(finalDiscount)}% Off`}
