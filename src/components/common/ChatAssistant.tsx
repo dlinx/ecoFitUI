@@ -22,7 +22,10 @@ import {
   SmartToy as BotIcon,
   Person as PersonIcon,
 } from '@mui/icons-material';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
+import chatService, { AvailableFilters } from '../../services/chat';
+import { SearchParams } from '../../types';
+import { useAlgoliaSearchWithFacets } from '../../hooks/useAlgolia';
 
 interface Message {
   id: string;
@@ -31,6 +34,7 @@ interface Message {
   timestamp: Date;
   suggestions?: string[];
   products?: any[];
+  filters?: Record<string, any>;
 }
 
 // Pulse animation for FAB
@@ -202,6 +206,27 @@ const ChatAssistant: React.FC = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Get current search parameters from URL
+  const getCurrentSearchParams = (): SearchParams => {
+    const urlParams = new URLSearchParams(location.search);
+    const currentSearchParams: SearchParams = {};
+    
+    if (urlParams.get('q')) currentSearchParams.q = urlParams.get('q')!;
+    if (urlParams.get('gender')) currentSearchParams.gender = urlParams.get('gender')!.split(',');
+    if (urlParams.get('category')) currentSearchParams.category = urlParams.get('category')!.split(',');
+    if (urlParams.get('subCategory')) currentSearchParams.subCategory = urlParams.get('subCategory')!.split(',');
+    if (urlParams.get('color')) currentSearchParams.color = urlParams.get('color')!.split(',');
+    if (urlParams.get('size')) currentSearchParams.size = urlParams.get('size')!.split(',');
+    if (urlParams.get('minPrice')) currentSearchParams.minPrice = Number(urlParams.get('minPrice'));
+    if (urlParams.get('maxPrice')) currentSearchParams.maxPrice = Number(urlParams.get('maxPrice'));
+
+    return currentSearchParams;
+  };
+
+  // Get available filters from Algolia search
+  const { facets } = useAlgoliaSearchWithFacets(getCurrentSearchParams());
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -217,6 +242,8 @@ const ChatAssistant: React.FC = () => {
     }
   }, [isOpen]);
 
+
+
   const handleSendMessage = async (text: string) => {
     if (!text.trim()) return;
 
@@ -231,125 +258,73 @@ const ChatAssistant: React.FC = () => {
     setInputValue('');
     setIsTyping(true);
 
-    // Process the message and generate response
-    const response = await processUserMessage(text.trim().toLowerCase());
-    
-    const assistantMessage: Message = {
-      id: (Date.now() + 1).toString(),
-      text: response.text,
-      sender: 'assistant',
-      timestamp: new Date(),
-      suggestions: response.suggestions,
-      products: response.products,
-    };
+    try {
+      // Get current search parameters
+      const currentSearchParams = getCurrentSearchParams();
 
-    setMessages(prev => [...prev, assistantMessage]);
-    setIsTyping(false);
+      // Convert current search params to applied filters
+      const appliedFilters = chatService.convertSearchParamsToFilters(currentSearchParams);
+
+      // Get chat history (last 5 user messages only)
+      const chatHistory = messages
+        .filter(msg => msg.sender === 'user')
+        .slice(-5)
+        .map(msg => msg.text)
+        .filter(text => text.length > 0);
+
+      // Use facets as available filters, fallback to empty object if not available
+      const currentAvailableFilters: AvailableFilters = (facets as AvailableFilters) || {
+        'gender.title': {},
+        'category.title': {},
+        'sku.size.title': {},
+        'sku.color.title': {},
+        'sub_category.title': {},
+      };
+
+      // Send message to AI service
+      const response = await chatService.sendMessage(
+        text.trim(),
+        chatHistory,
+        appliedFilters,
+        currentAvailableFilters
+      );
+
+      // Only navigate if filters are present and not empty
+      if (response.filters && Object.keys(response.filters).length > 0) {
+        const newSearchParams = chatService.convertFiltersToSearchParams(response.filters);
+        const searchUrl = chatService.buildSearchUrl(newSearchParams);
+        navigate(searchUrl);
+      }
+
+      const assistantMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        text: response.llm_response,
+        sender: 'assistant',
+        timestamp: new Date(),
+        suggestions: response.suggestion,
+        filters: response.filters,
+      };
+
+      setMessages(prev => [...prev, assistantMessage]);
+    } catch (error) {
+      console.error('Error processing chat message:', error);
+      
+      // Fallback response
+      const fallbackMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        text: "I'm sorry, I'm having trouble processing your request right now. Please try again or contact our support team.",
+        sender: 'assistant',
+        timestamp: new Date(),
+        suggestions: ['Try again', 'Contact support', 'Browse products manually'],
+      };
+
+      setMessages(prev => [...prev, fallbackMessage]);
+    } finally {
+      setIsTyping(false);
+    }
   };
 
-  const processUserMessage = async (userInput: string): Promise<{ text: string; suggestions?: string[]; products?: any[] }> => {
-    // Check for product search queries
-    if (userInput.includes('yoga') || userInput.includes('mat')) {
-      navigate('/search?q=yoga+mat');
-      return {
-        text: "Great choice! I've found some eco-friendly yoga mats for you. Our mats are made from natural rubber and sustainable materials. Check out the results!",
-        suggestions: ['Show me more yoga accessories', 'What about meditation cushions?', 'Tell me about sustainable materials']
-      };
-    }
 
-    if (userInput.includes('activewear') || userInput.includes('clothes') || userInput.includes('apparel')) {
-      navigate('/search?category=activewear');
-      return {
-        text: "Perfect! I've found sustainable activewear options for you. Our clothing is made from organic cotton, recycled polyester, and other eco-friendly materials.",
-        suggestions: ['Show me men\'s activewear', 'What about women\'s options?', 'Tell me about the materials']
-      };
-    }
-
-    if (userInput.includes('shoes') || userInput.includes('footwear') || userInput.includes('sneakers')) {
-      navigate('/search?category=footwear');
-      return {
-        text: "I've found some amazing eco-friendly footwear options! Our shoes are made from recycled materials and sustainable leather alternatives.",
-        suggestions: ['Show me running shoes', 'What about casual sneakers?', 'Tell me about the materials']
-      };
-    }
-
-    if (userInput.includes('equipment') || userInput.includes('weights') || userInput.includes('dumbbells')) {
-      navigate('/search?class=equipment');
-      return {
-        text: "I've found sustainable fitness equipment for you! Our equipment is made from recycled materials and designed to last.",
-        suggestions: ['Show me more equipment', 'What about resistance bands?', 'Tell me about durability']
-      };
-    }
-
-    // Check for sustainability questions
-    if (userInput.includes('sustainable') || userInput.includes('eco') || userInput.includes('green')) {
-      return {
-        text: "Our products are sustainable because we use organic materials, recycled fabrics, and ethical manufacturing processes. We also offset our carbon footprint and use minimal packaging. All our products are designed to last longer, reducing waste.",
-        suggestions: ['Show me sustainable products', 'What materials do you use?', 'Tell me about your manufacturing', 'How do you offset carbon?']
-      };
-    }
-
-    if (userInput.includes('material') || userInput.includes('fabric')) {
-      return {
-        text: "We use a variety of sustainable materials: organic cotton, recycled polyester, natural rubber, bamboo fabric, and Tencel. These materials are biodegradable, require less water to produce, and reduce our environmental impact.",
-        suggestions: ['Show me organic cotton products', 'What about recycled materials?', 'Tell me about bamboo fabric']
-      };
-    }
-
-    if (userInput.includes('manufacturing') || userInput.includes('production')) {
-      return {
-        text: "Our manufacturing process is ethical and sustainable. We work with certified factories that pay fair wages, use renewable energy, and implement water conservation practices. We also ensure safe working conditions.",
-        suggestions: ['Show me our certifications', 'Tell me about fair trade', 'What about quality control?']
-      };
-    }
-
-    // Check for help requests
-    if (userInput.includes('help') || userInput.includes('assist')) {
-      return {
-        text: "I can help you find products, explain our sustainability practices, assist with sizing, or answer any questions about EcoFit. Just let me know what you need!",
-        suggestions: ['Find products', 'Sustainability info', 'Size guide', 'Contact support', 'Shipping info']
-      };
-    }
-
-    if (userInput.includes('size') || userInput.includes('fit')) {
-      return {
-        text: "We offer detailed size guides for all our products. You can find size charts on each product page. Our products are designed to fit comfortably and accommodate different body types. Need help with a specific item?",
-        suggestions: ['Show me size charts', 'How do I measure?', 'What if it doesn\'t fit?', 'Return policy']
-      };
-    }
-
-    if (userInput.includes('shipping') || userInput.includes('delivery')) {
-      return {
-        text: "We offer carbon-neutral shipping on all orders. Standard delivery takes 3-5 business days, and we use eco-friendly packaging materials. Free shipping on orders over $50!",
-        suggestions: ['Shipping costs', 'Delivery times', 'International shipping', 'Track my order']
-      };
-    }
-
-    if (userInput.includes('return') || userInput.includes('refund')) {
-      return {
-        text: "We have a 30-day return policy for all unused items in original packaging. Returns are free and we'll donate returned items to local charities when possible.",
-        suggestions: ['How to return', 'Return shipping', 'Refund timeline', 'Damaged items']
-      };
-    }
-
-    // Check for specific product searches
-    const productKeywords = ['mat', 'shirt', 'pants', 'shorts', 'jacket', 'hoodie', 'bra', 'leggings', 'tank', 'sports bra'];
-    const foundKeyword = productKeywords.find(keyword => userInput.includes(keyword));
-    
-    if (foundKeyword) {
-      navigate(`/search?q=${foundKeyword}`);
-      return {
-        text: `I've found some great ${foundKeyword} options for you! Check out our sustainable selection.`,
-        suggestions: [`Show me more ${foundKeyword}s`, 'Filter by size', 'Filter by color', 'Tell me about materials']
-      };
-    }
-
-    // Default response with product suggestions
-    return {
-      text: "I understand you're looking for something. Let me help you find the perfect sustainable fitness products. You can ask me about specific items, categories, or our sustainability practices.",
-      suggestions: ['Show me yoga products', 'Find activewear', 'What makes you sustainable?', 'Help me choose', 'Show me equipment']
-    };
-  };
 
   const handleSuggestionClick = (suggestion: string) => {
     handleSendMessage(suggestion);
