@@ -17,6 +17,9 @@ import {
   FormLabel,
   ToggleButton,
   ToggleButtonGroup,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
 } from '@mui/material';
 import {
   ShoppingCart,
@@ -26,6 +29,7 @@ import {
   LocalShipping,
   Security,
   Nature,
+  ExpandMore,
 } from '@mui/icons-material';
 import Carousel from 'react-material-ui-carousel';
 import { useProduct } from '@hooks/useContentstack';
@@ -407,6 +411,48 @@ const ProductDetailsPage: React.FC = () => {
             </Box>
 
             <Divider sx={{ my: 4 }} />
+
+            {/* Product Description Accordion */}
+            <Box sx={{ mb: 4 }}>
+              <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
+                Product Details
+              </Typography>
+              <Accordion defaultExpanded>
+                <AccordionSummary
+                  expandIcon={<ExpandMore />}
+                  aria-controls="product-details-content"
+                  id="product-details-header"
+                >
+                  <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                    Product Description
+                  </Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                  <Typography variant="body1" sx={{ lineHeight: 1.6 }}>
+                    {product.description.details}
+                  </Typography>
+                </AccordionDetails>
+              </Accordion>
+
+              {product.description.material_and_care && (
+                <Accordion>
+                  <AccordionSummary
+                    expandIcon={<ExpandMore />}
+                    aria-controls="material-care-content"
+                    id="material-care-header"
+                  >
+                    <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                      Material & Care
+                    </Typography>
+                  </AccordionSummary>
+                  <AccordionDetails>
+                    <Typography variant="body1" sx={{ lineHeight: 1.6 }}>
+                      {product.description.material_and_care}
+                    </Typography>
+                  </AccordionDetails>
+                </Accordion>
+              )}
+            </Box>
 
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
