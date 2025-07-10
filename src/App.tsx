@@ -41,7 +41,7 @@ function App() {
               </Layout>
             </Router>
           </ErrorBoundary>
-          <ReactQueryDevtools initialIsOpen={false} />
+          {/* <ReactQueryDevtools initialIsOpen={false} /> */}
         </ThemeProvider>
       </HelmetProvider>
     </QueryClientProvider>
