@@ -22,8 +22,10 @@ export interface Category {
 
 export interface Filter {
   gender: string[];
-  class: string[];
   category: string[];
+  subCategory: string[];
+  color: string[];
+  size: string[];
   priceRange: [number, number];
   inStock: boolean;
 }
@@ -532,14 +534,47 @@ export interface HomePage {
 
 export interface SearchParams {
   q?: string;
-  gender?: string;
+  gender?: string | string[];
   class?: string;
-  category?: string;
+  category?: string | string[];
+  subCategory?: string | string[];
+  color?: string | string[];
+  size?: string | string[];
   minPrice?: number;
   maxPrice?: number;
   inStock?: boolean;
-  sortBy?: 'price' | 'rating' | 'newest' | 'popular';
+  sortBy?: 'newest' | 'price-asc' | 'price-desc' | 'rating' | 'popular';
   sortOrder?: 'asc' | 'desc';
   page?: number;
   limit?: number;
+}
+
+// Algolia types
+export interface AlgoliaSearchParams {
+  query?: string;
+  filters?: string;
+  facets?: string[];
+  facetFilters?: string[][];
+  numericFilters?: string[];
+  page?: number;
+  hitsPerPage?: number;
+  sortBy?: string;
+}
+
+export interface AlgoliaSearchResponse {
+  hits: DetailedProduct[];
+  nbHits: number;
+  page: number;
+  nbPages: number;
+  hitsPerPage: number;
+  facets?: Record<string, Record<string, number>>;
+  facetStats?: Record<string, { min: number; max: number }>;
+}
+
+export interface AlgoliaFacet {
+  name: string;
+  values: Array<{
+    value: string;
+    count: number;
+  }>;
 }

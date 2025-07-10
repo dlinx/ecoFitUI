@@ -14,11 +14,12 @@ import {
   Button,
   useMediaQuery,
   useTheme,
+  SelectChangeEvent,
 } from '@mui/material';
 import { FilterList } from '@mui/icons-material';
 import FilterSidebar from '@components/filters/FilterSidebar';
 import ProductGrid from '@components/product/ProductGrid';
-import { useProducts } from '@hooks/useContentstack';
+import { useAlgoliaSearchWithFacets } from '@hooks/useAlgolia';
 import { useFilters } from '@hooks/useFilters';
 
 const SearchPage: React.FC = () => {
@@ -32,36 +33,90 @@ const SearchPage: React.FC = () => {
 
   const searchQuery = searchParams.get('q') || '';
   const genderParam = searchParams.get('gender');
-  const classParam = searchParams.get('class');
   const categoryParam = searchParams.get('category');
+  const subCategoryParam = searchParams.get('subCategory');
+  const colorParam = searchParams.get('color');
+  const sizeParam = searchParams.get('size');
 
   useEffect(() => {
-    if (genderParam) updateFilter('gender', [genderParam]);
-    if (classParam) updateFilter('class', [classParam]);
-    if (categoryParam) updateFilter('category', [categoryParam]);
-  }, [genderParam, classParam, categoryParam, updateFilter]);
+    if (genderParam) updateFilter('gender', genderParam.split(',').map(g => g.trim()));
+    if (categoryParam) updateFilter('category', categoryParam.split(',').map(c => c.trim()));
+    if (subCategoryParam) updateFilter('subCategory', subCategoryParam.split(',').map(sc => sc.trim()));
+    if (colorParam) updateFilter('color', colorParam.split(',').map(col => col.trim()));
+    if (sizeParam) updateFilter('size', sizeParam.split(',').map(s => s.trim()));
+  }, [genderParam, categoryParam, subCategoryParam, colorParam, sizeParam, updateFilter]);
 
-  const { data: products = [], isLoading, error } = useProducts({
+  // Prepare search parameters for Algolia
+  const searchParamsForAlgolia = {
     q: searchQuery,
-    gender: filters.gender.length > 0 ? filters.gender[0] : undefined,
-    class: filters.class.length > 0 ? filters.class[0] : undefined,
-    category: filters.category.length > 0 ? filters.category[0] : undefined,
-    sortBy: sortBy as 'newest' | 'price' | 'rating' | 'popular',
-  });
+    gender: filters.gender.length > 0 ? filters.gender : undefined,
+    category: filters.category.length > 0 ? filters.category : undefined,
+    subCategory: filters.subCategory.length > 0 ? filters.subCategory : undefined,
+    color: filters.color.length > 0 ? filters.color : undefined,
+    size: filters.size.length > 0 ? filters.size : undefined,
+    sortBy: sortBy as 'newest' | 'price-asc' | 'price-desc' | 'rating' | 'popular',
+  };
 
-  const handleSortChange = (event: any) => {
+  const { data: searchResponse, isLoading, error, facets } = useAlgoliaSearchWithFacets(searchParamsForAlgolia);
+  const products = searchResponse?.hits || [];
+  const totalHits = searchResponse?.nbHits || 0;
+
+  const handleSortChange = (event: SelectChangeEvent<string>) => {
     setSortBy(event.target.value);
+  };
+
+  // Update URL when filters change
+  useEffect(() => {
+    const newSearchParams = new URLSearchParams();
+
+    if (searchQuery) {
+      newSearchParams.set('q', searchQuery);
+    }
+
+    if (filters.gender.length > 0) {
+      newSearchParams.set('gender', filters.gender.join(','));
+    }
+
+    if (filters.subCategory.length > 0) {
+      newSearchParams.set('subCategory', filters.subCategory.join(','));
+    }
+
+    if (filters.category.length > 0) {
+      newSearchParams.set('category', filters.category.join(','));
+    }
+
+    if (filters.color.length > 0) {
+      newSearchParams.set('color', filters.color.join(','));
+    }
+
+    if (filters.size.length > 0) {
+      newSearchParams.set('size', filters.size.join(','));
+    }
+
+    if (sortBy !== 'newest') {
+      newSearchParams.set('sort', sortBy);
+    }
+
+    setSearchParams(newSearchParams);
+  }, [filters, sortBy, searchQuery, setSearchParams]);
+
+  const getFilterDisplayName = (param: string | null) => {
+    if (!param) return '';
+    const values = param.split(',').map(v => v.trim());
+    if (values.length === 1) return values[0];
+    return `${values[0]} +${values.length - 1} more`;
   };
 
   const pageTitle = searchQuery
     ? `Search Results for "${searchQuery}"`
-    : `${genderParam || classParam || categoryParam || 'All Products'}`;
+    : `${getFilterDisplayName(genderParam) || getFilterDisplayName(subCategoryParam) || getFilterDisplayName(categoryParam) || 'All Products'}`;
 
   const FilterContent = () => (
     <FilterSidebar
       filters={filters}
       onFilterChange={updateFilter}
       onResetFilters={resetFilters}
+      facets={facets}
     />
   );
 
@@ -78,11 +133,11 @@ const SearchPage: React.FC = () => {
             {pageTitle}
           </Typography>
           <Typography variant="body1" color="text.secondary">
-            {products.length} products found
+            {totalHits} products found
           </Typography>
         </Box>
 
-        <Grid container spacing={4}>
+        <Grid container spacing={2}>
           {/* Desktop Filter Sidebar */}
           {!isMobile && (
             <Grid item md={3}>
@@ -103,7 +158,7 @@ const SearchPage: React.FC = () => {
 
           {/* Products Section */}
           <Grid item xs={12} md={9}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
               {/* Mobile Filter Button */}
               {isMobile && (
                 <Button
@@ -124,8 +179,8 @@ const SearchPage: React.FC = () => {
                   onChange={handleSortChange}
                 >
                   <MenuItem value="newest">Newest</MenuItem>
-                  <MenuItem value="price-low">Price: Low to High</MenuItem>
-                  <MenuItem value="price-high">Price: High to Low</MenuItem>
+                  <MenuItem value="price-asc">Price: Low to High</MenuItem>
+                  <MenuItem value="price-desc">Price: High to Low</MenuItem>
                   <MenuItem value="rating">Highest Rated</MenuItem>
                   <MenuItem value="popular">Most Popular</MenuItem>
                 </Select>

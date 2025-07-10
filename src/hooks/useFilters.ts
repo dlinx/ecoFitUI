@@ -1,10 +1,12 @@
 import { useState, useCallback } from 'react';
-import { Filter } from '@types';
+import { Filter } from '../types';
 
 const initialFilters: Filter = {
   gender: [],
-  class: [],
   category: [],
+  subCategory: [],
+  color: [],
+  size: [],
   priceRange: [0, 1000],
   inStock: false,
 };

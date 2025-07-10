@@ -289,10 +289,10 @@ const ProductCard: React.FC<ProductCardProps> = ({
   const transformToProduct = () => ({
     id: product.uid,
     title: product.title,
-    description: product.description.details,
+    description: product.description?.details,
     price: Math.round(finalDiscountedPrice),
     originalPrice: finalOriginalPrice ? Math.round(finalOriginalPrice) : undefined,
-    images: product.images.map(img => img.url),
+    images: product.images?.map(img => img.url) || [],
     inStock: finalInStock,
     inventory: selectedSku?.inventory || 0,
   });
@@ -336,7 +336,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
               },
             }}
           >
-            {product.images.map((image, index) => (
+            {product.images?.map((image, index) => (
               <CarouselImage
                 key={index}
                 src={image.url}
@@ -379,7 +379,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
         )} */}
 
         <ProductDescription variant="body2">
-          {product.description.details}
+          {product.description?.details}
         </ProductDescription>
 
         {/* Color and Size Selection */}
