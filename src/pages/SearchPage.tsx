@@ -29,7 +29,7 @@ const SearchPage: React.FC = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   const { filters, updateFilter, resetFilters } = useFilters();
-  
+
   const searchQuery = searchParams.get('q') || '';
   const genderParam = searchParams.get('gender');
   const classParam = searchParams.get('class');
@@ -53,8 +53,8 @@ const SearchPage: React.FC = () => {
     setSortBy(event.target.value);
   };
 
-  const pageTitle = searchQuery 
-    ? `Search Results for "${searchQuery}"` 
+  const pageTitle = searchQuery
+    ? `Search Results for "${searchQuery}"`
     : `${genderParam || classParam || categoryParam || 'All Products'}`;
 
   const FilterContent = () => (
@@ -86,7 +86,18 @@ const SearchPage: React.FC = () => {
           {/* Desktop Filter Sidebar */}
           {!isMobile && (
             <Grid item md={3}>
-              <FilterContent />
+              <Box
+                sx={{
+                  position: 'sticky',
+                  top: 70,
+                  height: 'fit-content',
+                  maxHeight: 'calc(100vh - 80px)',
+                  overflowY: 'auto',
+                  paddingBottom: 1
+                }}
+              >
+                <FilterContent />
+              </Box>
             </Grid>
           )}
 

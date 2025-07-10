@@ -458,7 +458,7 @@ const ProductDetailsPage: React.FC = () => {
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                 <LocalShipping color="primary" />
                 <Typography variant="body2">
-                  Free shipping on orders over ₹2000
+                  Free shipping on orders over ₹500
                 </Typography>
               </Box>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>

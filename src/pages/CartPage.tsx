@@ -24,7 +24,7 @@ const CartPage: React.FC = () => {
 
   const subtotal = cart.total; // Use the calculated total from the cart
   const shipping = subtotal > 500 ? 0 : 99; // Free shipping over ₹500
-  const tax = subtotal * 0.18; // 18% GST
+  const tax = subtotal * 0.18 + shipping * 0.12; // 18% GST on product and 12% GST on shipping
   const total = subtotal + shipping + tax;
 
   const handleQuantityChange = (skuCode: string, newQuantity: number) => {
