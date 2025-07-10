@@ -109,7 +109,7 @@ const ProductDetailsPage: React.FC = () => {
     if (selectedSku) {
       const selectedColorObj = selectedSku.color?.find(c => c.uid === selectedColor);
       const selectedSizeObj = selectedSku.size?.find(s => s.uid === selectedSize);
-      
+
       addToCart({
         product: {
           id: product.uid,
@@ -161,73 +161,56 @@ const ProductDetailsPage: React.FC = () => {
           {/* Product Images */}
           <Grid item xs={12} md={6}>
             <Box sx={{ position: 'sticky', top: 20 }}>
-              <Paper elevation={2} sx={{ p: 2, mb: 2 }}>
-                <Carousel
-                  autoPlay={false}
-                  animation="slide"
-                  indicators={false}
-                  navButtonsAlwaysVisible={product.images.length > 1}
-                  navButtonsProps={{
-                    style: {
-                      backgroundColor: 'rgba(255, 255, 255, 0.8)',
-                      borderRadius: '50%',
-                      minWidth: '40px',
-                      width: '40px',
-                      height: '40px',
-                    }
-                  }}
-                  sx={{
-                    '& .MuiButtonBase-root': {
-                      color: 'primary.main',
-                    },
-                    '& .MuiButtonBase-root:hover': {
-                      backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                    },
-                  }}
-                >
-                  {product.images.map((image, index) => (
-                    <Box
-                      key={index}
-                      component="img"
-                      src={image.url}
-                      alt={`${product.title} ${index + 1}`}
-                      sx={{
-                        width: '100%',
-                        height: 400,
-                        objectFit: 'cover',
-                        borderRadius: 2,
-                      }}
-                    />
-                  ))}
-                </Carousel>
-              </Paper>
-
-              {product.images.length > 1 && (
-                <Box sx={{ display: 'flex', gap: 1, overflowX: 'auto', pb: 1 }}>
-                  {product.images.map((image, index) => (
-                    <Box
-                      key={index}
-                      component="img"
-                      src={image.permanent_url}
-                      alt={`${product.title} ${index + 1}`}
-                      sx={{
-                        width: 80,
-                        height: 80,
-                        objectFit: 'cover',
-                        borderRadius: 1,
-                        cursor: 'pointer',
-                        border: '2px solid',
-                        borderColor: 'grey.300',
-                        transition: 'all 0.2s ease-in-out',
-                        '&:hover': {
-                          borderColor: 'primary.main',
-                          transform: 'scale(1.05)',
-                        },
-                      }}
-                    />
-                  ))}
-                </Box>
-              )}
+              <Carousel
+                autoPlay={false}
+                animation="slide"
+                indicators={true}
+                navButtonsAlwaysVisible={product.images.length > 1}
+                navButtonsProps={{
+                  style: {
+                    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                    borderRadius: '50%',
+                    minWidth: '40px',
+                    width: '40px',
+                    height: '40px',
+                  }
+                }}
+                sx={{
+                  '& .MuiButtonBase-root': {
+                    color: 'primary.main',
+                  },
+                  '& .MuiButtonBase-root:hover': {
+                    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                  },
+                }}
+                IndicatorIcon={product.images.map(i =>
+                  <img style={{ width: 40, height: 40, objectFit: 'cover', borderRadius: 1 }} src={i.url} alt={i.title} />)}
+                indicatorIconButtonProps={{
+                  style: {
+                    opacity: 0.5,
+                  }
+                }}
+                activeIndicatorIconButtonProps={{
+                  style: {
+                    opacity: 1,
+                  }
+                }}
+              >
+                {product.images.map((image, index) => (
+                  <Box
+                    key={index}
+                    component="img"
+                    src={image.url}
+                    alt={`${product.title} ${index + 1}`}
+                    sx={{
+                      width: '100%',
+                      height: 400,
+                      objectFit: 'cover',
+                      borderRadius: 1,
+                    }}
+                  />
+                ))}
+              </Carousel>
             </Box>
           </Grid>
 
@@ -447,7 +430,7 @@ const ProductDetailsPage: React.FC = () => {
             </Box>
           </Grid>
         </Grid>
-      </Container>
+      </Container >
     </>
   );
 };
