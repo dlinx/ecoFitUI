@@ -462,7 +462,7 @@ const theme = createTheme({
             background: 'rgba(26, 26, 26, 1)',
             transform: 'translateY(-1px)',
             backdropFilter: 'blur(15px)',
-            color: '#FFFFFF',
+            color: '#000000',
           },
           '&.Mui-disabled': {
             background: 'rgba(0, 0, 0, 0.08)',

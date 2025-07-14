@@ -36,7 +36,7 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
 
   const handleCheckboxChange = (key: keyof Filter, value: string) => {
     const currentValues = filters[key] as string[];
-    const newValues = currentValues?.includes(value)
+    const newValues = currentValues?.includes(value?.toLowerCase())
       ? currentValues?.filter(v => v !== value)
       : [...currentValues, value];
     onFilterChange(key, newValues);
@@ -64,7 +64,6 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
           </Button>
         )}
       </Box>
-
       <Accordion defaultExpanded>
         <AccordionSummary expandIcon={<ExpandMore />}>
           <Typography>Gender</Typography>
@@ -77,7 +76,7 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
                 key={gender}
                 control={
                   <Checkbox
-                    checked={filters.gender?.includes(gender)}
+                    checked={filters.gender?.includes(gender?.toLowerCase())}
                     onChange={() => handleCheckboxChange('gender', gender)}
                   />
                 }
@@ -100,7 +99,7 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
                 key={category}
                 control={
                   <Checkbox
-                    checked={filters.category?.includes(category)}
+                    checked={filters.category?.includes(category?.toLowerCase())}
                     onChange={() => handleCheckboxChange('category', category)}
                   />
                 }
@@ -124,7 +123,7 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
                   key={subCategory}
                   control={
                     <Checkbox
-                      checked={filters.subCategory?.includes(subCategory)}
+                      checked={filters.subCategory?.includes(subCategory?.toLowerCase())}
                       onChange={() => handleCheckboxChange('subCategory', subCategory)}
                     />
                   }
@@ -149,7 +148,7 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
                   key={color}
                   control={
                     <Checkbox
-                      checked={filters.color?.includes(color)}
+                      checked={filters.color?.includes(color?.toLowerCase())}
                       onChange={() => handleCheckboxChange('color', color)}
                     />
                   }
@@ -174,7 +173,7 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
                   key={size}
                   control={
                     <Checkbox
-                      checked={filters.size?.includes(size)}
+                      checked={filters.size?.includes(size?.toLowerCase())}
                       onChange={() => handleCheckboxChange('size', size)}
                     />
                   }
@@ -197,11 +196,11 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
               onChange={handlePriceChange}
               valueLabelDisplay="auto"
               min={0}
-              max={1000}
+              max={10000}
               marks={[
-                { value: 0, label: '$0' },
-                { value: 500, label: '$500' },
-                { value: 1000, label: '$1000' },
+                { value: 0, label: '₹0' },
+                { value: 5000, label: '₹5000' },
+                { value: 10000, label: '₹10000' },
               ]}
             />
           </Box>

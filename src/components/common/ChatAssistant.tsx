@@ -127,15 +127,8 @@ const SuggestionsContainer = styled(Box)(({ theme }) => ({
   marginTop: theme.spacing(1),
 }));
 
-const SuggestionChip = styled(Chip)(({ theme }) => ({
+const SuggestionChip = styled(Chip)(() => ({
   cursor: 'pointer',
-  fontSize: '0.75rem',
-  '&:hover': {
-    backgroundColor: theme.palette.primary.light,
-    color: 'white',
-    transform: 'translateY(-1px)',
-  },
-  transition: 'all 0.2s ease-in-out',
 }));
 
 const TypingIndicator = styled(Paper)(({ theme }) => ({
@@ -204,7 +197,6 @@ const ChatAssistant: React.FC = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const navigate = useNavigate();
   const location = useLocation();
 
