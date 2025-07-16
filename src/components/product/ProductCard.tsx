@@ -69,7 +69,8 @@ const CarouselContainer = styled(Box)({
 const CarouselImage = styled('img')({
   width: '100%',
   height: '264px',
-  objectFit: 'fill',
+  objectFit: 'cover',
+  objectPosition: 'top',
 });
 
 const DiscountChip = styled(Chip)(() => ({
