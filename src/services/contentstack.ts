@@ -19,6 +19,9 @@ class ContentstackService {
         environment: this.config.environment,
         region: this.config.region as any,
       });
+      if (import.meta.env.VITE_CONTENTSTACK_BASE_URL) {
+        this.stack.setHost(import.meta.env.VITE_CONTENTSTACK_BASE_URL);
+      }
     } else {
       this.stack = null;
     }
