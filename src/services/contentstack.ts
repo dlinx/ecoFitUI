@@ -66,7 +66,18 @@ class ContentstackService {
 
     try {
       const query = this.stack.ContentType('product').Entry(id);
-      query.includeReference(['images', 'sku', 'category', 'class', 'gender', 'tags', 'description', 'sku.color', 'sku.size', 'sub_category']);
+      query.includeReference([
+        // 'images',
+        // 'sku',
+        'category',
+        // 'class',
+        'gender',
+        // 'tags',
+        // 'description',
+        'sku.color',
+        'sku.size',
+        'sub_category'
+      ]);
 
       const result = await query.toJSON().fetch();
       return result || null;
@@ -112,14 +123,14 @@ class ContentstackService {
       const query = this.stack!.ContentType('home_page').Query();
       query.limit(1);
       query.includeReference(['app_navigation',
-        'entry_banner.banner',
+        // 'entry_banner.banner',
         'trending.trending_1.trending_items',
         'wishlist.wishlist_items.wishlist_items',
-        'trending.trending_1.trending_items.sku',
+        // 'trending.trending_1.trending_items.sku',
         'trending.trending_1.trending_items.sku.color',
         'trending.trending_1.trending_items.sku.size',
         'trending.trending_1.trending_items.gender',
-        'trending.trending_1.trending_items.class',
+        // 'trending.trending_1.trending_items.class',
         'trending.trending_1.trending_items.category',
         'trending.trending_1.trending_items.sub_category'
       ]);
