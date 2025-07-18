@@ -2,6 +2,7 @@ import React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Box } from '@mui/material';
 import HeroBanner from '@components/home/HeroBanner';
+import AIChatSection from '@components/home/AIChatSection';
 import ProductSlider from '@components/product/ProductSlider';
 import { useHomePage } from '@hooks/useContentstack';
 import { useFavorites } from '@hooks/useFavorites';
@@ -31,6 +32,8 @@ const HomePage: React.FC = () => {
         {heroBanner && !homePageLoading && (
           <HeroBanner banner={heroBanner} />
         )}
+
+        <AIChatSection />
 
         <ProductSlider
           products={homePage?.trending?.flatMap(section => section.trending_1.trending_items) || []}

@@ -10,7 +10,6 @@ const ALGOLIA_INDEX_NAME = import.meta.env.VITE_ALGOLIA_INDEX_NAME;
 const searchClient = algoliasearch(ALGOLIA_APP_ID, ALGOLIA_SEARCH_API_KEY);
 
 export interface AlgoliaSearchParams {
-  query?: string;
   filters?: string;
   facets?: string[];
   facetFilters?: string[][];
@@ -45,7 +44,6 @@ class AlgoliaService {
   async searchProducts(params: AlgoliaSearchParams = {}): Promise<AlgoliaSearchResponse> {
     try {
       const {
-        query = '',
         filters = '',
         facets = ['gender.title', 'category.title', 'sub_category.title', 'sku.color.title', 'sku.size.title'],
         facetFilters = [],
@@ -57,7 +55,6 @@ class AlgoliaService {
 
       // Configure search parameters
       const searchParams: any = {
-        query,
         page,
         hitsPerPage,
         facets,
@@ -106,7 +103,6 @@ class AlgoliaService {
    */
   convertSearchParams(params: SearchParams): AlgoliaSearchParams {
     const algoliaParams: AlgoliaSearchParams = {
-      query: params.q || '',
       page: (params.page || 1) - 1, // Algolia uses 0-based pagination
       hitsPerPage: params.limit || 20,
       sortBy: params.sortBy || 'newest',

@@ -16,7 +16,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         {children}
       </Box>
       <Footer />
-      <ChatAssistant />
+      {/* <ChatAssistant /> */}
     </Box>
   );
 };
