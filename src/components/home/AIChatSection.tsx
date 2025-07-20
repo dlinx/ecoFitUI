@@ -145,7 +145,7 @@ const AIChatSection: React.FC<AIChatSectionProps> = ({ onProductClick }) => {
         </Typography>
       </Box>
 
-      <Box sx={{ mb: 3, position: 'relative', zIndex: 1 }}>
+      <Box sx={{ mb: 3, position: 'relative', zIndex: 1, width: '60%', mx: 'auto' }}>
         <TextField
           fullWidth
           placeholder="Ask me anything about products... e.g., 'Show me yoga mats for women' or 'also show men'"
